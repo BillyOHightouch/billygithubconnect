@@ -1,6 +1,6 @@
 name: ht_training_sql_model
 source: snowflake
+description: Updated via Git training
 type: raw_sql
 rawSql: SELECT 1 AS ID
 primaryKey: ID
-description: Updated via Git training
