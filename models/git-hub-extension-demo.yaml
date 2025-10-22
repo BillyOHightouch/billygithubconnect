@@ -1,0 +1,5 @@
+name: GitHub Extension Demo
+source: snowflake
+type: dbt_model
+dbtModel: model.ht_demo.simple_model
+primaryKey: ID
