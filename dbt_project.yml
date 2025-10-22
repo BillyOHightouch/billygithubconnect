@@ -1,0 +1,11 @@
+name: "ht_demo"
+version: "1.0.0"
+config-version: 2
+
+profile: "ht_demo"
+
+model-paths: ["models"]
+
+models:
+  ht_demo:
+    +materialized: view
