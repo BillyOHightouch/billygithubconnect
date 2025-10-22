@@ -1,0 +1,19 @@
+name: Order Completed
+onSchemaViolation: ALLOW_EVENT
+onUndeclaredFields: ALLOW_EVENT
+schema:
+  type: object
+  properties:
+    properties:
+      type: object
+      properties:
+        value:
+          type: string
+        currency:
+          type: string
+        order_id:
+          type: string
+        products:
+          type: array
+type: track
+version: default
