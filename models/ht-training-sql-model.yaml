@@ -1,0 +1,5 @@
+name: ht_training_sql_model
+source: snowflake
+type: raw_sql
+rawSql: SELECT 1 AS ID
+primaryKey: ID
