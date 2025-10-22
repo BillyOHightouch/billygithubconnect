@@ -1,0 +1,55 @@
+model: order-completed-events-model
+destination: undefined-2ed35-391bf
+description: Meta Conversion API | Order Completed
+config:
+  mappings:
+    - to: user_data.anon_id
+      from: USER_ID
+      type: standard
+  eventName:
+    from: EVENT_NAME
+  timestamp:
+    from: TIMESTAMP
+  actionSource: website
+  configVersion: 1
+  customMappings:
+    - to: ANONYMOUS_ID
+      from: ANONYMOUS_ID
+      type: standard
+    - to: BROWSER
+      from: BROWSER
+      type: standard
+    - to: CURRENCY
+      from: CURRENCY
+      type: standard
+    - to: DEVICE_TYPE
+      from: DEVICE_TYPE
+      type: standard
+    - to: EVENT_NAME
+      from: EVENT_NAME
+      type: standard
+    - to: ID
+      from: ID
+      type: standard
+    - to: ORDER_ID
+      from: ORDER_ID
+      type: standard
+    - to: REVENUE
+      from: REVENUE
+      type: standard
+    - to: SESSION_ID
+      from: SESSION_ID
+      type: standard
+    - to: TIMESTAMP
+      from: TIMESTAMP
+      type: standard
+    - to: USER_ID
+      from: USER_ID
+      type: standard
+schedule:
+  type: interval
+  schedule:
+    interval:
+      unit: hour
+      quantity: 1
+schedulePaused: false

@@ -1,0 +1,118 @@
+model: users
+destination: undefined-885f0-537d0
+config:
+  mode: upsert
+  type: object
+  object: user
+  mappings:
+    - to: email
+      from: EMAIL
+      type: standard
+    - to: first_name
+      from: FIRST_NAME
+      type: standard
+    - to: gender
+      from: GENDER
+      type: standard
+    - to: last_name
+      from: LAST_NAME
+      type: standard
+  eventType: custom
+  segmentMode: create
+  userMapping: {}
+  rowsPerBatch: 75
+  aliasMappings: []
+  configVersion: 7
+  diffAddedRows: true
+  customMappings:
+    - to: ACCOUNT_ID
+      from: ACCOUNT_ID
+      type: standard
+    - to: ADS_CONSENT
+      from: ADS_CONSENT
+      type: standard
+    - to: BOXES_RECEIVED_LAST_6_MONTHS
+      from: BOXES_RECEIVED_LAST_6_MONTHS
+      type: standard
+    - to: BRAND_LOYALTY
+      from: BRAND_LOYALTY
+      type: standard
+    - to: CHOICE_PERCENTAGE
+      from: CHOICE_PERCENTAGE
+      type: standard
+    - to: CHURNED
+      from: CHURNED
+      type: standard
+    - to: EMAIL
+      from: EMAIL
+      type: standard
+    - to: EMAIL_CONSENT
+      from: EMAIL_CONSENT
+      type: standard
+    - to: EMAIL_CONSENT2
+      from: EMAIL_CONSENT2
+      type: standard
+    - to: FIRST_NAME
+      from: FIRST_NAME
+      type: standard
+    - to: FIRST_PURCHASE_DATE
+      from: FIRST_PURCHASE_DATE
+      type: standard
+    - to: GENDER
+      from: GENDER
+      type: standard
+    - to: INITIAL_SOURCE
+      from: INITIAL_SOURCE
+      type: standard
+    - to: INTENT_SCORE
+      from: INTENT_SCORE
+      type: standard
+    - to: IP_ADDRESS
+      from: IP_ADDRESS
+      type: standard
+    - to: LAST_LOGGED_IN_DATE
+      from: LAST_LOGGED_IN_DATE
+      type: standard
+    - to: LAST_NAME
+      from: LAST_NAME
+      type: standard
+    - to: LAST_PURCHASE_DATE
+      from: LAST_PURCHASE_DATE
+      type: standard
+    - to: LOYALTY_MEMBER
+      from: LOYALTY_MEMBER
+      type: standard
+    - to: LTV
+      from: LTV
+      type: standard
+    - to: NUMBER_SUPPORT_TICKETS
+      from: NUMBER_SUPPORT_TICKETS
+      type: standard
+    - to: PRIMARY_KEY
+      from: PRIMARY_KEY
+      type: standard
+    - to: SPLIT_COLUMN
+      from: SPLIT_COLUMN
+      type: standard
+    - to: STATE
+      from: STATE
+      type: standard
+    - to: SUBSCRIBED
+      from: SUBSCRIBED
+      type: standard
+    - to: USER_ID
+      from: USER_ID
+      type: standard
+  parallelization: 65
+  attributeMappings: []
+  externalIdMapping:
+    to: external_id
+    from: USER_ID
+    type: standard
+  autoTransformDates: true
+  sendToExistingOnly: true
+  customUserAttributes: []
+  subscriptionGroupType: phone
+schedule:
+  type: manual
+schedulePaused: false

@@ -1,0 +1,31 @@
+model: enriched-customers
+destination: hub-spot
+config:
+  mode: upsert
+  type: object
+  object: contacts
+  mappings:
+    - to: country
+      from: country
+      type: standard
+    - to: firstname
+      from: first_name
+      type: standard
+    - to: lastname
+      from: last_name
+      type: standard
+    - to: ltv_segment
+      from: ltv_segment
+      type: standard
+      ignoreNull: true
+  configVersion: 2
+  shouldTruncate: false
+  associationMode: append
+  externalIdMapping:
+    to: email
+    from: email
+    type: standard
+  associationMappings: []
+schedule:
+  type: manual
+schedulePaused: false
