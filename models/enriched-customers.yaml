@@ -1,0 +1,67 @@
+name: Enriched Customers
+source: pc-863-databricks_30
+type: raw_sql
+rawSql: |-
+  WITH customer_orders AS (
+    SELECT
+      c.customer_id,
+      c.first_name,
+      c.last_name,
+      c.email,
+      c.signup_date,
+      c.country,
+      o.order_id,
+      o.total_amount,
+      o.order_date
+    FROM workspace.marketing.customers c
+    LEFT JOIN workspace.marketing.orders o
+      ON c.customer_id = o.customer_id
+    WHERE c.signup_date >= DATE_SUB(CURRENT_DATE(), 730)
+  ),
+  category_counts AS (
+    SELECT
+      co.customer_id,
+      p.category,
+      COUNT(*) AS category_count
+    FROM customer_orders co
+    JOIN workspace.marketing.order_items oi
+      ON co.order_id = oi.order_id
+    JOIN workspace.marketing.products p
+      ON oi.product_id = p.product_id
+    GROUP BY co.customer_id, p.category
+  ),
+  top_categories AS (
+    SELECT
+      customer_id,
+      category AS top_category
+    FROM (
+      SELECT
+        customer_id,
+        category,
+        ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY category_count DESC) AS rank
+      FROM category_counts
+    ) ranked
+    WHERE rank = 1
+  )
+  SELECT
+    co.customer_id,
+    co.first_name,
+    co.last_name,
+    co.email,
+    co.signup_date,
+    co.country,
+    COUNT(co.order_id) AS total_orders,
+    SUM(co.total_amount) AS total_spend,
+    MAX(co.order_date) AS last_order_date,
+    CASE
+      WHEN SUM(co.total_amount) >= 200 THEN 'High Value'
+      WHEN SUM(co.total_amount) >= 100 THEN 'Medium Value'
+      ELSE 'Low Value'
+    END AS ltv_segment,
+    tc.top_category
+  FROM customer_orders co
+  LEFT JOIN top_categories tc
+    ON co.customer_id = tc.customer_id
+  GROUP BY
+    co.customer_id, co.first_name, co.last_name, co.email, co.signup_date, co.country, tc.top_category
+primaryKey: customer_id

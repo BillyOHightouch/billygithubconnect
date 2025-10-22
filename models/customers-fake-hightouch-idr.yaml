@@ -1,0 +1,6 @@
+name: CUSTOMERS [FAKE_HIGHTOUCH_IDR]
+source: snowflake-fake-hightouch
+description: Customer Table for Hightouch IDR
+type: table
+tableName: PUBLIC.CUSTOMERS
+primaryKey: USER_ID

@@ -1,0 +1,5 @@
+name: SALESFORCE_DATA [FAKE_HIGHTOUCH_IDR]
+source: snowflake-fake-hightouch
+type: table
+tableName: PUBLIC.SALESFORCE_DATA
+primaryKey: EMAIL

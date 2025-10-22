@@ -1,0 +1,6 @@
+name: Customers
+source: snowflake-delta-airlines
+description: Airline Customers
+type: table
+tableName: PUBLIC.CUSTOMERS
+primaryKey: USER_ID

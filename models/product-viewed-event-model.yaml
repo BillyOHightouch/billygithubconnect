@@ -1,0 +1,21 @@
+name: Product Viewed Event Model
+source: snowflake
+description: LuLuLemon Demo
+type: raw_sql
+rawSql: |-
+  SELECT
+      EVENT_ID as id,
+      CUSTOMER_ID as user_id,
+      ANONYMOUS_ID as anonymous_id,
+      TIMESTAMP as timestamp,
+      'Product Viewed' as event_name,
+      SESSION_ID as session_id,
+      DEVICE_TYPE as device_type,
+      BROWSER as browser,
+      PROPERTIES:product_id::VARCHAR as product_id,
+      PROPERTIES:product_name::VARCHAR as product_name,
+      PROPERTIES:category::VARCHAR as category,
+      PROPERTIES:price::FLOAT as price
+  FROM LULULEMON_EVENTS
+  WHERE EVENT_TYPE = 'product_view'
+primaryKey: USER_ID

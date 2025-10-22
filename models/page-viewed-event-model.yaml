@@ -1,0 +1,20 @@
+name: Page Viewed Event Model
+source: snowflake
+description: LuLuLemon Demo
+type: raw_sql
+rawSql: |-
+  SELECT
+      EVENT_ID as id,
+      CUSTOMER_ID as user_id,
+      ANONYMOUS_ID as anonymous_id,
+      TIMESTAMP as timestamp,
+      'Page Viewed' as event_name,
+      SESSION_ID as session_id,
+      DEVICE_TYPE as device_type,
+      BROWSER as browser,
+      PROPERTIES:page_title::VARCHAR as page_title,
+      PROPERTIES:page_url::VARCHAR as page_url,
+      PROPERTIES:referrer::VARCHAR as referrer
+  FROM LULULEMON_EVENTS
+  WHERE EVENT_TYPE = 'page_view'
+primaryKey: USER_ID

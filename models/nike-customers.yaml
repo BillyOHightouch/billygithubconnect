@@ -1,0 +1,5 @@
+name: NIKE_CUSTOMERS
+source: snowflake-2
+type: table
+tableName: PUBLIC.CUSTOMERS
+primaryKey: USER_ID

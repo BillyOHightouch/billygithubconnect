@@ -1,0 +1,19 @@
+name: Checkout Started Event Model
+source: snowflake
+description: LuLuLemon Demo
+type: raw_sql
+rawSql: |-
+  SELECT
+      EVENT_ID as id,
+      CUSTOMER_ID as user_id,
+      ANONYMOUS_ID as anonymous_id,
+      TIMESTAMP as timestamp,
+      'Checkout Started' as event_name,
+      SESSION_ID as session_id,
+      DEVICE_TYPE as device_type,
+      BROWSER as browser,
+      PROPERTIES:cart_value::FLOAT as cart_value,
+      PROPERTIES:items_count::INT as items_count
+  FROM LULULEMON_EVENTS
+  WHERE EVENT_TYPE = 'checkout_started'
+primaryKey: USER_ID

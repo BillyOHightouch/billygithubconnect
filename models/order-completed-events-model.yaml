@@ -1,0 +1,20 @@
+name: Order Completed Events Model
+source: snowflake
+description: LuLuLemon Demo
+type: raw_sql
+rawSql: |-
+  SELECT
+      EVENT_ID as id,
+      CUSTOMER_ID as user_id,
+      ANONYMOUS_ID as anonymous_id,
+      TIMESTAMP as timestamp,
+      'Order Completed' as event_name,
+      SESSION_ID as session_id,
+      DEVICE_TYPE as device_type,
+      BROWSER as browser,
+      PROPERTIES:order_id::VARCHAR as order_id,
+      PROPERTIES:total_amount::FLOAT as revenue,
+      PROPERTIES:currency::VARCHAR as currency
+  FROM LULULEMON_EVENTS
+  WHERE EVENT_TYPE = 'purchase'
+primaryKey: USER_ID

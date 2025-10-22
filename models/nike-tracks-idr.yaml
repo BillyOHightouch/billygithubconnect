@@ -1,0 +1,5 @@
+name: NIKE_TRACKS_IDR
+source: snowflake-2
+type: table
+tableName: NIKE_WEBSITE.TRACKS
+primaryKey: ID

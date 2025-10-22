@@ -1,0 +1,6 @@
+name: B2C All Events
+source: Snowflake-aaa71
+description: Array of common B2C Funnel Events
+type: table
+tableName: PUBLIC.IDRV2_ECOMM_EVENTS
+primaryKey: EVENT_ID
