@@ -1,0 +1,8 @@
+version: 2
+
+models:
+  - name: simple_model
+    description: "Minimal model for Hightouch PR check demo"
+    columns:
+      - name: id
+        tests: []
