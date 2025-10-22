@@ -1,4 +1,4 @@
 -- Minimal model that should compile on any adapter
 select
   1 as id,
-  'training'::varchar as new_col;
+  'training2'::varchar as new_col;
