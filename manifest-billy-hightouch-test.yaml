@@ -1,0 +1,94 @@
+# READ ONLY FILE
+# Changes made here will be ignored. Please use the Hightouch dashboard to create and edit sources and destinations.
+
+sources:
+  linktree-snowflake:
+    name: Linktree Snowflake
+    type: snowflake
+  snowflake-2:
+    name: Snowflake [NIKE]
+    type: snowflake
+  snowflake-fake-hightouch:
+    name: Snowflake [FAKE HIGHTOUCH]
+    type: snowflake
+  snowflake-petsmart:
+    name: Snowflake [PETSMART]
+    type: snowflake
+  snowflake-delta-airlines:
+    name: Snowflake [ANZ AIRLINES]
+    type: snowflake
+  snowflake:
+    name: Billy Personal Snowflake
+    type: snowflake
+  Snowflake-6ad3b:
+    name: Snowflake [Campaigns]
+    type: snowflake
+  Databricks-4491c:
+    name: Databricks Hightouch Clone
+    type: databricks
+  Snowflake-aaa71:
+    name: Snowflake B2C eCommerce Clone
+    type: snowflake
+  Snowflake-c8fd2:
+    name: Snowflake Travel Clone
+    type: snowflake
+  pc-863-databricks_30:
+    name: Billy Databricks Personal
+    type: databricks
+destinations:
+  google-data-manager-0a35a:
+    type: google-data-manager
+  snowflake-personal:
+    name: Snowflake Personal
+    type: snowflake-destination
+  microsoft-bing-ads:
+    name: Microsoft Bing Ads
+    type: bingads
+  undefined-3ad06-465a3:
+    type: googleAnalytics
+  google-campaign-manager-e5571:
+    type: googleCampaignManager
+  undefined-c485a-a9096:
+    type: gam360
+  google-sheets-service-account:
+    name: Google Sheets (Service Account)
+    type: googleSheetsSA
+  undefined-f8d62-85b16:
+    type: sfmc
+  undefined-629ee-fe31c:
+    type: tiktok
+  zendesk-6fb9b:
+    type: zendesk
+  undefined-d2bec-b2cf2:
+    type: tradedesk
+  undefined-08ce6-79f3f:
+    type: snapchat
+  undefined-25f4a-5d5c7:
+    type: linkedin
+  hightouch-personalization-api-b2bc3:
+    type: hightouch-personalization-api
+  undefined-2ed35-391bf:
+    type: facebookConversions
+  facebook-custom-audiences-v2-35269:
+    type: facebook
+  undefined-947d7-e8edc:
+    type: brazeCohorts
+  beeceptor-json-test:
+    name: Beeceptor JSON Test
+    type: webhookV2
+  google-ads:
+    name: Google Ads
+    type: google
+  mixpanel:
+    name: Mixpanel
+    type: mixpanel
+  hub-spot:
+    name: HubSpot
+    type: hubspot
+  undefined-949fa-3dde4:
+    type: salesforce
+  undefined-885f0-537d0:
+    type: braze
+  facebook-custom-audiences-v2-cc9ae:
+    type: facebook
+slug: manifest-billy-hightouch-test
