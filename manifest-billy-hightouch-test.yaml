@@ -36,6 +36,16 @@ sources:
     name: Billy Databricks Personal
     type: databricks
 destinations:
+  earl-s-iterable-project-tejas-hightouch-io-hightouch-email-project-86545:
+    type: iterable
+  undefined-98024-b2b8e:
+    type: outreach
+  statsig-56cc2:
+    type: statsig
+  optimizely-e4ff2:
+    type: optimizely
+  undefined-22d0e-75cb4:
+    type: marketo
   google-data-manager-0a35a:
     type: google-data-manager
   snowflake-personal:
