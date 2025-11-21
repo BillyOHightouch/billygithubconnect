@@ -1,0 +1,46 @@
+model: lyka-pets-2
+destination: undefined-885f0-537d0
+config:
+  mode: upsert
+  type: catalog
+  object: user
+  mappings:
+    - to: BREED
+      from: BREED
+      type: standard
+      fieldType: string
+    - to: PET_ID
+      from: PET_ID
+      type: standard
+      fieldType: string
+    - to: PET_NAME
+      from: PET_NAME
+      type: standard
+      fieldType: string
+    - to: SPECIES
+      from: SPECIES
+      type: standard
+      fieldType: string
+    - to: USER_ID
+      from: USER_ID
+      type: standard
+      fieldType: string
+  eventType: custom
+  segmentMode: create
+  rowsPerBatch: 50
+  configVersion: 8
+  diffAddedRows: true
+  enableNesting: true
+  customMappings:
+    - to: pets
+      type: object
+  parallelization: 75
+  customSegmentName: LYKA_PETS
+  externalIdMapping:
+    to: id
+    from: PET_ID
+  autoTransformDates: true
+  customUserAttributes: []
+schedule:
+  type: manual
+schedulePaused: false
