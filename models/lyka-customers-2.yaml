@@ -1,0 +1,7 @@
+name: LYKA CUSTOMERS
+source: snowflake-petsmart
+type: raw_sql
+rawSql: |-
+  SELECT *
+  FROM PUBLIC.LYKA_CUSTOMERS
+primaryKey: USER_ID
