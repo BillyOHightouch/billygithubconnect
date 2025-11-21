@@ -1,0 +1,73 @@
+model: lyka-customers-2
+destination: undefined-885f0-537d0
+description: Hydrating Customer Object
+config:
+  mode: upsert
+  type: object
+  object: user
+  mappings:
+    - to: country
+      from: COUNTRY
+      type: standard
+    - to: email
+      from: EMAIL
+      type: standard
+    - to: first_name
+      from: FIRST_NAME
+      type: standard
+    - to: last_name
+      from: LAST_NAME
+      type: standard
+    - to: phone
+      from: PHONE
+      type: standard
+    - to: subscription_groups
+      from: SUBSCRIPTION_STATUS
+      type: standard
+  eventType: custom
+  rowsPerBatch: 50
+  aliasMappings: []
+  configVersion: 8
+  diffAddedRows: true
+  enableNesting: true
+  customMappings:
+    - to: CITY
+      from: CITY
+      type: standard
+    - to: COUNTRY
+      from: COUNTRY
+      type: standard
+    - to: EMAIL
+      from: EMAIL
+      type: standard
+    - to: FIRST_NAME
+      from: FIRST_NAME
+      type: standard
+    - to: LAST_NAME
+      from: LAST_NAME
+      type: standard
+    - to: MEMBER_SINCE
+      from: MEMBER_SINCE
+      type: standard
+    - to: PHONE
+      from: PHONE
+      type: standard
+    - to: STATE
+      from: STATE
+      type: standard
+    - to: SUBSCRIPTION_STATUS
+      from: SUBSCRIPTION_STATUS
+      type: standard
+    - to: USER_ID
+      from: USER_ID
+      type: standard
+  parallelization: 75
+  externalIdMapping:
+    to: external_id
+    from: USER_ID
+    type: standard
+  autoTransformDates: true
+  customUserAttributes: []
+schedule:
+  type: manual
+schedulePaused: false
