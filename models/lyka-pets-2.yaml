@@ -1,0 +1,7 @@
+name: LYKA PETS
+source: snowflake-petsmart
+type: raw_sql
+rawSql: |-
+  SELECT*
+  FROM PUBLIC.LYKA_PETS
+primaryKey: PET_ID
