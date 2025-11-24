@@ -5,7 +5,25 @@ config:
   mode: upsert
   type: object
   object: user
-  mappings: []
+  mappings:
+    - to: country
+      from: COUNTRY
+      type: standard
+    - to: email
+      from: EMAIL
+      type: standard
+    - to: first_name
+      from: FIRST_NAME
+      type: standard
+    - to: last_name
+      from: LAST_NAME
+      type: standard
+    - to: phone
+      from: PHONE
+      type: standard
+    - to: subscription_groups
+      from: SUBSCRIPTION_STATUS
+      type: standard
   eventType: custom
   rowsPerBatch: 50
   aliasMappings: []
@@ -13,24 +31,31 @@ config:
   diffAddedRows: true
   enableNesting: true
   customMappings:
-    - to: address
-      from:
-        - to: CITY
-          from: CITY
+    - to: pets
+      from: PET_DETAILS
+      type: array
+      children:
+        - to: birthday
+          from: birthday
           type: standard
-        - to: COUNTRY
-          from: COUNTRY
+        - to: breed
+          from: breed
           type: standard
-      type: object
-    - to: name
-      from:
-        - to: first_name
-          from: FIRST_NAME
+        - to: is_neutered
+          from: is_neutered
           type: standard
-        - to: last_name
-          from: LAST_NAME
+        - to: pet_id
+          from: pet_id
           type: standard
-      type: object
+        - to: pet_name
+          from: pet_name
+          type: standard
+        - to: species
+          from: species
+          type: standard
+        - to: weight_kg
+          from: weight_kg
+          type: standard
   parallelization: 75
   externalIdMapping:
     to: external_id
