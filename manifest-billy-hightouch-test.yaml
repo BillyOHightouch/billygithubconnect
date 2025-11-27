@@ -15,7 +15,7 @@ sources:
     name: Snowflake [PETSMART]
     type: snowflake
   snowflake-delta-airlines:
-    name: Snowflake [ANZ AIRLINES]
+    name: Snowflake [AIRLINE]
     type: snowflake
   snowflake:
     name: Billy Personal Snowflake
