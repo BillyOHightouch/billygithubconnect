@@ -1,0 +1,249 @@
+name: AIRLINE_LOYALTY_MEMBERSHIPS
+source: Snowflake-aaa71
+type: raw_sql
+rawSql: |-
+  WITH base_accounts AS (
+      SELECT a.*, u.USER_ID
+      FROM public.accounts a
+      JOIN public.users u ON a.ACCOUNT_ID = u.ACCOUNT_ID
+  ),
+  expanded_accounts AS (
+      -- Original accounts
+      SELECT
+          ACCOUNT_ID AS original_account_id,
+          USER_ID AS original_user_id,
+          ACCOUNT_NAME,
+          NUMBER_7,
+          NUMBER_10,
+          NUMBER_30,
+          NUMBER_100,
+          NUMBER_365,
+          NUMBER_1000,
+          BOOLEAN_34,
+          BOOLEAN_52,
+          ROW_NUMBER() OVER (PARTITION BY ACCOUNT_ID ORDER BY ACCOUNT_ID) AS account_seq
+      FROM base_accounts
+  ),
+  user_memberships AS (
+      -- For original users
+      SELECT
+          original_account_id AS membership_id,
+          original_user_id AS customer_id,
+          ACCOUNT_NAME,
+          NUMBER_7,
+          NUMBER_10,
+          NUMBER_30,
+          NUMBER_100,
+          NUMBER_365,
+          NUMBER_1000,
+          BOOLEAN_34,
+          BOOLEAN_52,
+          account_seq,
+          0 AS user_set
+      FROM expanded_accounts
+      
+      UNION ALL
+      
+      -- For user set 2 (with email prefix '2-')
+      SELECT
+          CONCAT(original_account_id, '-2') AS membership_id,
+          CONCAT(original_user_id, '-2') AS customer_id,
+          ACCOUNT_NAME,
+          NUMBER_7,
+          NUMBER_10,
+          NUMBER_30,
+          NUMBER_100,
+          NUMBER_365,
+          NUMBER_1000,
+          BOOLEAN_34,
+          BOOLEAN_52,
+          account_seq,
+          1 AS user_set
+      FROM expanded_accounts
+      
+      UNION ALL
+      
+      -- For user set 3 (with email prefix '3-')
+      SELECT
+          CONCAT(original_account_id, '-3') AS membership_id,
+          CONCAT(original_user_id, '-3') AS customer_id,
+          ACCOUNT_NAME,
+          NUMBER_7,
+          NUMBER_10,
+          NUMBER_30,
+          NUMBER_100,
+          NUMBER_365,
+          NUMBER_1000,
+          BOOLEAN_34,
+          BOOLEAN_52,
+          account_seq,
+          2 AS user_set
+      FROM expanded_accounts
+      
+      UNION ALL
+      
+      -- For user set 4 (with email prefix '4-')
+      SELECT
+          CONCAT(original_account_id, '-4') AS membership_id,
+          CONCAT(original_user_id, '-4') AS customer_id,
+          ACCOUNT_NAME,
+          NUMBER_7,
+          NUMBER_10,
+          NUMBER_30,
+          NUMBER_100,
+          NUMBER_365,
+          NUMBER_1000,
+          BOOLEAN_34,
+          BOOLEAN_52,
+          account_seq,
+          3 AS user_set
+      FROM expanded_accounts
+      
+      UNION ALL
+      
+      -- For user set 5 (with email prefix '5-')
+      SELECT
+          CONCAT(original_account_id, '-5') AS membership_id,
+          CONCAT(original_user_id, '-5') AS customer_id,
+          ACCOUNT_NAME,
+          NUMBER_7,
+          NUMBER_10,
+          NUMBER_30,
+          NUMBER_100,
+          NUMBER_365,
+          NUMBER_1000,
+          BOOLEAN_34,
+          BOOLEAN_52,
+          account_seq,
+          4 AS user_set
+      FROM expanded_accounts
+      
+      UNION ALL
+      
+      -- For user set 6 (with email prefix '6-')
+      SELECT
+          CONCAT(original_account_id, '-6') AS membership_id,
+          CONCAT(original_user_id, '-6') AS customer_id,
+          ACCOUNT_NAME,
+          NUMBER_7,
+          NUMBER_10,
+          NUMBER_30,
+          NUMBER_100,
+          NUMBER_365,
+          NUMBER_1000,
+          BOOLEAN_34,
+          BOOLEAN_52,
+          account_seq,
+          5 AS user_set
+      FROM expanded_accounts
+      
+      UNION ALL
+      
+      -- For user set 7 (with email prefix '7-')
+      SELECT
+          CONCAT(original_account_id, '-7') AS membership_id,
+          CONCAT(original_user_id, '-7') AS customer_id,
+          ACCOUNT_NAME,
+          NUMBER_7,
+          NUMBER_10,
+          NUMBER_30,
+          NUMBER_100,
+          NUMBER_365,
+          NUMBER_1000,
+          BOOLEAN_34,
+          BOOLEAN_52,
+          account_seq,
+          6 AS user_set
+      FROM expanded_accounts
+      
+      -- Adding extra membership rows to ensure each user has at least 3 memberships
+      UNION ALL
+      
+      -- Extra memberships for all user sets - creating variations
+      SELECT
+          CONCAT(original_account_id, '-ex-', seq) AS membership_id,
+          CASE
+              WHEN seq % 7 = 1 THEN CONCAT(original_user_id, '-2')
+              WHEN seq % 7 = 2 THEN CONCAT(original_user_id, '-3')
+              WHEN seq % 7 = 3 THEN CONCAT(original_user_id, '-4')
+              WHEN seq % 7 = 4 THEN CONCAT(original_user_id, '-5')
+              WHEN seq % 7 = 5 THEN CONCAT(original_user_id, '-6')
+              WHEN seq % 7 = 6 THEN CONCAT(original_user_id, '-7')
+              ELSE original_user_id
+          END AS customer_id,
+          ACCOUNT_NAME,
+          (NUMBER_7 + seq) % 7 + 1 AS NUMBER_7,
+          (NUMBER_10 + seq) % 10 + 1 AS NUMBER_10,
+          (NUMBER_30 + seq) % 30 + 1 AS NUMBER_30,
+          (NUMBER_100 + seq) % 100 + 1 AS NUMBER_100,
+          NUMBER_365,
+          NUMBER_1000 + (seq * 30) AS NUMBER_1000,
+          BOOLEAN_34,
+          BOOLEAN_52,
+          account_seq + 100 AS account_seq,
+          seq % 7 AS user_set
+      FROM expanded_accounts
+      CROSS JOIN (SELECT seq FROM (
+          SELECT 1 AS seq UNION ALL SELECT 2 UNION ALL SELECT 3
+      ) numbers)
+      WHERE account_seq <= 2 -- Only multiply the first few accounts to avoid too many rows
+  )
+  SELECT
+      membership_id,
+      customer_id,
+      ACCOUNT_NAME AS membership_name,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'Qantas Club'
+          WHEN NUMBER_7 = 2 THEN 'Qantas Business Rewards'
+          WHEN NUMBER_7 = 3 THEN 'oneworld Alliance'
+          WHEN NUMBER_7 = 4 THEN 'Emirates Skywards Partnership'
+          WHEN NUMBER_7 = 5 THEN 'Family Points Pooling'
+          WHEN NUMBER_7 = 6 THEN 'Qantas Wine Club'
+          ELSE 'Qantas Golf Club'
+      END AS membership_type,
+      DATEADD('day', -1 * (NUMBER_1000 + (user_set * 30)), CURRENT_DATE()) AS join_date,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * (NUMBER_1000 + (user_set * 30)), CURRENT_DATE())) AS expiry_date,
+      CASE 
+          WHEN NUMBER_30 < 10 THEN 'Active'
+          WHEN NUMBER_30 < 20 THEN 'Pending'
+          WHEN NUMBER_30 < 25 THEN 'Expired'
+          ELSE 'Cancelled'
+      END AS status,
+      BOOLEAN_34 AS auto_renewal,
+      NUMBER_100 * 10 AS membership_fee,
+      CASE 
+          WHEN BOOLEAN_52 THEN 'Annual'
+          ELSE 'Monthly'
+      END AS billing_frequency,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Credit Card'
+          WHEN NUMBER_10 = 2 THEN 'Direct Debit'
+          WHEN NUMBER_10 = 3 THEN 'Qantas Points'
+          ELSE 'Invoice'
+      END AS payment_method,
+      -- Adding Qantas-specific membership details
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'QF-CLUB-' || LPAD(NUMBER_100::VARCHAR, 5, '0')
+          WHEN NUMBER_7 = 2 THEN 'QF-BIZ-' || LPAD(NUMBER_100::VARCHAR, 5, '0')
+          WHEN NUMBER_7 = 3 THEN 'QF-OW-' || LPAD(NUMBER_100::VARCHAR, 5, '0')
+          WHEN NUMBER_7 = 4 THEN 'QF-EK-' || LPAD(NUMBER_100::VARCHAR, 5, '0')
+          WHEN NUMBER_7 = 5 THEN 'QF-FAM-' || LPAD(NUMBER_100::VARCHAR, 5, '0')
+          WHEN NUMBER_7 = 6 THEN 'QF-WINE-' || LPAD(NUMBER_100::VARCHAR, 5, '0')
+          ELSE 'QF-GOLF-' || LPAD(NUMBER_100::VARCHAR, 5, '0')
+      END AS membership_number,
+      CASE
+          WHEN NUMBER_7 = 1 THEN 'Lounge Access'
+          WHEN NUMBER_7 = 2 THEN 'Business Rewards'
+          WHEN NUMBER_7 = 3 THEN 'Alliance Benefits'
+          WHEN NUMBER_7 = 4 THEN 'Partner Benefits'
+          WHEN NUMBER_7 = 5 THEN 'Family Benefits'
+          WHEN NUMBER_7 = 6 THEN 'Wine Club'
+          ELSE 'Golf Club'
+      END AS benefit_category,
+      CASE
+          WHEN NUMBER_30 < 10 THEN TRUE
+          ELSE FALSE
+      END AS benefits_active
+  FROM 
+      user_memberships
+primaryKey: MEMBERSHIP_ID
