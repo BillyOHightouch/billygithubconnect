@@ -1,0 +1,408 @@
+name: AIRLINE_CUSTOMERS
+source: Snowflake-aaa71
+type: raw_sql
+rawSql: |-
+  SELECT
+      USER_ID AS customer_id,
+      CONCAT('QF', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) AS VARCHAR), 8, '0')) AS frequent_flyer_number,
+      FIRST_NAME AS first_name,
+      LAST_NAME AS last_name,
+      EMAIL AS email,
+      NUMBER_30 AS age,
+      DATEADD('day', -1 * NUMBER_365 * NUMBER_30, CURRENT_DATE()) AS DOB,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS date_joined,
+      GENDER AS gender,
+      CASE 
+          WHEN NUMBER_100 < 10 THEN 'Platinum One'
+          WHEN NUMBER_100 < 25 THEN 'Platinum'
+          WHEN NUMBER_100 < 50 THEN 'Gold'
+          WHEN NUMBER_100 < 75 THEN 'Silver'
+          ELSE 'Bronze'
+      END AS loyalty_tier,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Business'
+          WHEN NUMBER_10 = 2 THEN 'Premium Economy'
+          WHEN NUMBER_10 = 3 THEN 'Economy'
+          ELSE 'First'
+      END AS preferred_cabin,
+      BOOLEAN_34 AS marketing_opt_in,
+      BOOLEAN_52 AS email_preferences,
+      IP_ADDRESS AS last_login_ip,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'Australia'
+          WHEN NUMBER_7 = 2 THEN 'New Zealand'
+          WHEN NUMBER_7 = 3 THEN 'United Kingdom'
+          WHEN NUMBER_7 = 4 THEN 'United States'
+          WHEN NUMBER_7 = 5 THEN 'Singapore'
+          WHEN NUMBER_7 = 6 THEN 'Japan'
+          ELSE 'Hong Kong'
+      END AS country_of_residence,
+      CAST(NUMBER_100 * 1000 AS VARCHAR) AS lifetime_points,
+      NUMBER_30 * 100 AS status_credits,
+      CASE 
+          WHEN BOOLEAN_87 THEN 'Qantas Club'
+          ELSE 'None'
+      END AS lounge_access,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Visa Platinum'
+          WHEN NUMBER_10 = 2 THEN 'American Express Qantas Ultimate'
+          WHEN NUMBER_10 = 3 THEN 'Qantas Premier Platinum'
+          WHEN NUMBER_10 = 4 THEN 'American Express Qantas Premium'
+          ELSE 'None'
+      END AS linked_credit_card,
+      CASE
+          WHEN NUMBER_10 < 3 THEN TRUE
+          ELSE FALSE 
+      END AS oneworld_benefits,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date
+  FROM 
+      public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-2') AS customer_id,
+      CONCAT('QF', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 3000 AS VARCHAR), 8, '0')) AS frequent_flyer_number,
+      FIRST_NAME AS first_name,
+      LAST_NAME AS last_name,
+      CONCAT('2-', EMAIL) AS email,
+      NUMBER_30 AS age,
+      DATEADD('day', -1 * NUMBER_365 * NUMBER_30, CURRENT_DATE()) AS DOB,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS date_joined,
+      GENDER AS gender,
+      CASE 
+          WHEN NUMBER_100 < 10 THEN 'Platinum One'
+          WHEN NUMBER_100 < 25 THEN 'Platinum'
+          WHEN NUMBER_100 < 50 THEN 'Gold'
+          WHEN NUMBER_100 < 75 THEN 'Silver'
+          ELSE 'Bronze'
+      END AS loyalty_tier,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Business'
+          WHEN NUMBER_10 = 2 THEN 'Premium Economy'
+          WHEN NUMBER_10 = 3 THEN 'Economy'
+          ELSE 'First'
+      END AS preferred_cabin,
+      BOOLEAN_34 AS marketing_opt_in,
+      BOOLEAN_52 AS email_preferences,
+      IP_ADDRESS AS last_login_ip,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'Australia'
+          WHEN NUMBER_7 = 2 THEN 'New Zealand'
+          WHEN NUMBER_7 = 3 THEN 'United Kingdom'
+          WHEN NUMBER_7 = 4 THEN 'United States'
+          WHEN NUMBER_7 = 5 THEN 'Singapore'
+          WHEN NUMBER_7 = 6 THEN 'Japan'
+          ELSE 'Hong Kong'
+      END AS country_of_residence,
+      CAST(NUMBER_100 * 1000 AS VARCHAR) AS lifetime_points,
+      NUMBER_30 * 100 AS status_credits,
+      CASE 
+          WHEN BOOLEAN_87 THEN 'Qantas Club'
+          ELSE 'None'
+      END AS lounge_access,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Visa Platinum'
+          WHEN NUMBER_10 = 2 THEN 'American Express Qantas Ultimate'
+          WHEN NUMBER_10 = 3 THEN 'Qantas Premier Platinum'
+          WHEN NUMBER_10 = 4 THEN 'American Express Qantas Premium'
+          ELSE 'None'
+      END AS linked_credit_card,
+      CASE
+          WHEN NUMBER_10 < 3 THEN TRUE
+          ELSE FALSE 
+      END AS oneworld_benefits,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date
+  FROM 
+      public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-3') AS customer_id,
+      CONCAT('QF', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 6000 AS VARCHAR), 8, '0')) AS frequent_flyer_number,
+      FIRST_NAME AS first_name,
+      LAST_NAME AS last_name,
+      CONCAT('3-', EMAIL) AS email,
+      NUMBER_30 AS age,
+      DATEADD('day', -1 * NUMBER_365 * NUMBER_30, CURRENT_DATE()) AS DOB,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS date_joined,
+      GENDER AS gender,
+      CASE 
+          WHEN NUMBER_100 < 10 THEN 'Platinum One'
+          WHEN NUMBER_100 < 25 THEN 'Platinum'
+          WHEN NUMBER_100 < 50 THEN 'Gold'
+          WHEN NUMBER_100 < 75 THEN 'Silver'
+          ELSE 'Bronze'
+      END AS loyalty_tier,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Business'
+          WHEN NUMBER_10 = 2 THEN 'Premium Economy'
+          WHEN NUMBER_10 = 3 THEN 'Economy'
+          ELSE 'First'
+      END AS preferred_cabin,
+      BOOLEAN_34 AS marketing_opt_in,
+      BOOLEAN_52 AS email_preferences,
+      IP_ADDRESS AS last_login_ip,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'Australia'
+          WHEN NUMBER_7 = 2 THEN 'New Zealand'
+          WHEN NUMBER_7 = 3 THEN 'United Kingdom'
+          WHEN NUMBER_7 = 4 THEN 'United States'
+          WHEN NUMBER_7 = 5 THEN 'Singapore'
+          WHEN NUMBER_7 = 6 THEN 'Japan'
+          ELSE 'Hong Kong'
+      END AS country_of_residence,
+      CAST(NUMBER_100 * 1000 AS VARCHAR) AS lifetime_points,
+      NUMBER_30 * 100 AS status_credits,
+      CASE 
+          WHEN BOOLEAN_87 THEN 'Qantas Club'
+          ELSE 'None'
+      END AS lounge_access,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Visa Platinum'
+          WHEN NUMBER_10 = 2 THEN 'American Express Qantas Ultimate'
+          WHEN NUMBER_10 = 3 THEN 'Qantas Premier Platinum'
+          WHEN NUMBER_10 = 4 THEN 'American Express Qantas Premium'
+          ELSE 'None'
+      END AS linked_credit_card,
+      CASE
+          WHEN NUMBER_10 < 3 THEN TRUE
+          ELSE FALSE 
+      END AS oneworld_benefits,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date
+  FROM 
+      public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-4') AS customer_id,
+      CONCAT('QF', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 9000 AS VARCHAR), 8, '0')) AS frequent_flyer_number,
+      FIRST_NAME AS first_name,
+      LAST_NAME AS last_name,
+      CONCAT('4-', EMAIL) AS email,
+      NUMBER_30 AS age,
+      DATEADD('day', -1 * NUMBER_365 * NUMBER_30, CURRENT_DATE()) AS DOB,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS date_joined,
+      GENDER AS gender,
+      CASE 
+          WHEN NUMBER_100 < 10 THEN 'Platinum One'
+          WHEN NUMBER_100 < 25 THEN 'Platinum'
+          WHEN NUMBER_100 < 50 THEN 'Gold'
+          WHEN NUMBER_100 < 75 THEN 'Silver'
+          ELSE 'Bronze'
+      END AS loyalty_tier,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Business'
+          WHEN NUMBER_10 = 2 THEN 'Premium Economy'
+          WHEN NUMBER_10 = 3 THEN 'Economy'
+          ELSE 'First'
+      END AS preferred_cabin,
+      BOOLEAN_34 AS marketing_opt_in,
+      BOOLEAN_52 AS email_preferences,
+      IP_ADDRESS AS last_login_ip,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'Australia'
+          WHEN NUMBER_7 = 2 THEN 'New Zealand'
+          WHEN NUMBER_7 = 3 THEN 'United Kingdom'
+          WHEN NUMBER_7 = 4 THEN 'United States'
+          WHEN NUMBER_7 = 5 THEN 'Singapore'
+          WHEN NUMBER_7 = 6 THEN 'Japan'
+          ELSE 'Hong Kong'
+      END AS country_of_residence,
+      CAST(NUMBER_100 * 1000 AS VARCHAR) AS lifetime_points,
+      NUMBER_30 * 100 AS status_credits,
+      CASE 
+          WHEN BOOLEAN_87 THEN 'Qantas Club'
+          ELSE 'None'
+      END AS lounge_access,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Visa Platinum'
+          WHEN NUMBER_10 = 2 THEN 'American Express Qantas Ultimate'
+          WHEN NUMBER_10 = 3 THEN 'Qantas Premier Platinum'
+          WHEN NUMBER_10 = 4 THEN 'American Express Qantas Premium'
+          ELSE 'None'
+      END AS linked_credit_card,
+      CASE
+          WHEN NUMBER_10 < 3 THEN TRUE
+          ELSE FALSE 
+      END AS oneworld_benefits,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date
+  FROM 
+      public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-5') AS customer_id,
+      CONCAT('QF', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 12000 AS VARCHAR), 8, '0')) AS frequent_flyer_number,
+      FIRST_NAME AS first_name,
+      LAST_NAME AS last_name,
+      CONCAT('5-', EMAIL) AS email,
+      NUMBER_30 AS age,
+      DATEADD('day', -1 * NUMBER_365 * NUMBER_30, CURRENT_DATE()) AS DOB,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS date_joined,
+      GENDER AS gender,
+      CASE 
+          WHEN NUMBER_100 < 10 THEN 'Platinum One'
+          WHEN NUMBER_100 < 25 THEN 'Platinum'
+          WHEN NUMBER_100 < 50 THEN 'Gold'
+          WHEN NUMBER_100 < 75 THEN 'Silver'
+          ELSE 'Bronze'
+      END AS loyalty_tier,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Business'
+          WHEN NUMBER_10 = 2 THEN 'Premium Economy'
+          WHEN NUMBER_10 = 3 THEN 'Economy'
+          ELSE 'First'
+      END AS preferred_cabin,
+      BOOLEAN_34 AS marketing_opt_in,
+      BOOLEAN_52 AS email_preferences,
+      IP_ADDRESS AS last_login_ip,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'Australia'
+          WHEN NUMBER_7 = 2 THEN 'New Zealand'
+          WHEN NUMBER_7 = 3 THEN 'United Kingdom'
+          WHEN NUMBER_7 = 4 THEN 'United States'
+          WHEN NUMBER_7 = 5 THEN 'Singapore'
+          WHEN NUMBER_7 = 6 THEN 'Japan'
+          ELSE 'Hong Kong'
+      END AS country_of_residence,
+      CAST(NUMBER_100 * 1000 AS VARCHAR) AS lifetime_points,
+      NUMBER_30 * 100 AS status_credits,
+      CASE 
+          WHEN BOOLEAN_87 THEN 'Qantas Club'
+          ELSE 'None'
+      END AS lounge_access,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Visa Platinum'
+          WHEN NUMBER_10 = 2 THEN 'American Express Qantas Ultimate'
+          WHEN NUMBER_10 = 3 THEN 'Qantas Premier Platinum'
+          WHEN NUMBER_10 = 4 THEN 'American Express Qantas Premium'
+          ELSE 'None'
+      END AS linked_credit_card,
+      CASE
+          WHEN NUMBER_10 < 3 THEN TRUE
+          ELSE FALSE 
+      END AS oneworld_benefits,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date
+  FROM 
+      public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-6') AS customer_id,
+      CONCAT('QF', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 15000 AS VARCHAR), 8, '0')) AS frequent_flyer_number,
+      FIRST_NAME AS first_name,
+      LAST_NAME AS last_name,
+      CONCAT('6-', EMAIL) AS email,
+      NUMBER_30 AS age,
+      DATEADD('day', -1 * NUMBER_365 * NUMBER_30, CURRENT_DATE()) AS DOB,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS date_joined,
+      GENDER AS gender,
+      CASE 
+          WHEN NUMBER_100 < 10 THEN 'Platinum One'
+          WHEN NUMBER_100 < 25 THEN 'Platinum'
+          WHEN NUMBER_100 < 50 THEN 'Gold'
+          WHEN NUMBER_100 < 75 THEN 'Silver'
+          ELSE 'Bronze'
+      END AS loyalty_tier,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Business'
+          WHEN NUMBER_10 = 2 THEN 'Premium Economy'
+          WHEN NUMBER_10 = 3 THEN 'Economy'
+          ELSE 'First'
+      END AS preferred_cabin,
+      BOOLEAN_34 AS marketing_opt_in,
+      BOOLEAN_52 AS email_preferences,
+      IP_ADDRESS AS last_login_ip,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'Australia'
+          WHEN NUMBER_7 = 2 THEN 'New Zealand'
+          WHEN NUMBER_7 = 3 THEN 'United Kingdom'
+          WHEN NUMBER_7 = 4 THEN 'United States'
+          WHEN NUMBER_7 = 5 THEN 'Singapore'
+          WHEN NUMBER_7 = 6 THEN 'Japan'
+          ELSE 'Hong Kong'
+      END AS country_of_residence,
+      CAST(NUMBER_100 * 1000 AS VARCHAR) AS lifetime_points,
+      NUMBER_30 * 100 AS status_credits,
+      CASE 
+          WHEN BOOLEAN_87 THEN 'Qantas Club'
+          ELSE 'None'
+      END AS lounge_access,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Visa Platinum'
+          WHEN NUMBER_10 = 2 THEN 'American Express Qantas Ultimate'
+          WHEN NUMBER_10 = 3 THEN 'Qantas Premier Platinum'
+          WHEN NUMBER_10 = 4 THEN 'American Express Qantas Premium'
+          ELSE 'None'
+      END AS linked_credit_card,
+      CASE
+          WHEN NUMBER_10 < 3 THEN TRUE
+          ELSE FALSE 
+      END AS oneworld_benefits,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date
+  FROM 
+      public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-7') AS customer_id,
+      CONCAT('QF', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 18000 AS VARCHAR), 8, '0')) AS frequent_flyer_number,
+      FIRST_NAME AS first_name,
+      LAST_NAME AS last_name,
+      CONCAT('7-', EMAIL) AS email,
+      NUMBER_30 AS age,
+      DATEADD('day', -1 * NUMBER_365 * NUMBER_30, CURRENT_DATE()) AS DOB,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS date_joined,
+      GENDER AS gender,
+      CASE 
+          WHEN NUMBER_100 < 10 THEN 'Platinum One'
+          WHEN NUMBER_100 < 25 THEN 'Platinum'
+          WHEN NUMBER_100 < 50 THEN 'Gold'
+          WHEN NUMBER_100 < 75 THEN 'Silver'
+          ELSE 'Bronze'
+      END AS loyalty_tier,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Business'
+          WHEN NUMBER_10 = 2 THEN 'Premium Economy'
+          WHEN NUMBER_10 = 3 THEN 'Economy'
+          ELSE 'First'
+      END AS preferred_cabin,
+      BOOLEAN_34 AS marketing_opt_in,
+      BOOLEAN_52 AS email_preferences,
+      IP_ADDRESS AS last_login_ip,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'Australia'
+          WHEN NUMBER_7 = 2 THEN 'New Zealand'
+          WHEN NUMBER_7 = 3 THEN 'United Kingdom'
+          WHEN NUMBER_7 = 4 THEN 'United States'
+          WHEN NUMBER_7 = 5 THEN 'Singapore'
+          WHEN NUMBER_7 = 6 THEN 'Japan'
+          ELSE 'Hong Kong'
+      END AS country_of_residence,
+      CAST(NUMBER_100 * 1000 AS VARCHAR) AS lifetime_points,
+      NUMBER_30 * 100 AS status_credits,
+      CASE 
+          WHEN BOOLEAN_87 THEN 'Qantas Club'
+          ELSE 'None'
+      END AS lounge_access,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Visa Platinum'
+          WHEN NUMBER_10 = 2 THEN 'American Express Qantas Ultimate'
+          WHEN NUMBER_10 = 3 THEN 'Qantas Premier Platinum'
+          WHEN NUMBER_10 = 4 THEN 'American Express Qantas Premium'
+          ELSE 'None'
+      END AS linked_credit_card,
+      CASE
+          WHEN NUMBER_10 < 3 THEN TRUE
+          ELSE FALSE 
+      END AS oneworld_benefits,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date
+  FROM 
+      public.users
+primaryKey: CUSTOMER_ID
