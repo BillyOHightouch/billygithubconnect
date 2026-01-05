@@ -30,7 +30,7 @@ sources:
     name: Databricks Hightouch Clone
     type: databricks
   Snowflake-aaa71:
-    name: '[HT] Snowflake B2C eCommerce'
+    name: ✈️ [HT] Snowflake Airlines
     type: snowflake
   pc-863-databricks_30:
     name: Billy Databricks Personal
