@@ -29,9 +29,6 @@ sources:
   Snowflake-aaa71:
     name: '[HT] Snowflake B2C eCommerce'
     type: snowflake
-  Snowflake-c8fd2:
-    name: Snowflake Travel Clone
-    type: snowflake
   pc-863-databricks_30:
     name: Billy Databricks Personal
     type: databricks
