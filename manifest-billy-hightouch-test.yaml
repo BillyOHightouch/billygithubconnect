@@ -3,7 +3,7 @@
 
 sources:
   linktree-snowflake:
-    name: Linktree Snowflake
+    name: Snowflake [LINKTREE}
     type: snowflake
   snowflake-2:
     name: Snowflake [NIKE]
