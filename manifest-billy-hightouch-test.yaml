@@ -27,7 +27,7 @@ sources:
     name: Databricks Hightouch Clone
     type: databricks
   Snowflake-aaa71:
-    name: Snowflake B2C eCommerce Clone
+    name: '[HT] Snowflake B2C eCommerce'
     type: snowflake
   Snowflake-c8fd2:
     name: Snowflake Travel Clone
