@@ -15,5 +15,6 @@ schema:
           type: string
         products:
           type: array
+  description: Event fires when a user completes checkout
 type: track
 version: default
