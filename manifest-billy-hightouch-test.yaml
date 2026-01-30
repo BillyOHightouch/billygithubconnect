@@ -29,9 +29,6 @@ sources:
   snowflake:
     name: Billy Personal Snowflake
     type: snowflake
-  Snowflake-6ad3b:
-    name: Snowflake [Campaigns]
-    type: snowflake
   Databricks-4491c:
     name: Databricks Hightouch Clone
     type: databricks
