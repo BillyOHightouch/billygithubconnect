@@ -2,14 +2,14 @@
 # Changes made here will be ignored. Please use the Hightouch dashboard to create and edit sources and destinations.
 
 sources:
+  Snowflake-cd6b9:
+    name: 📌 [HT] B2C eCommerce & Retail
+    type: snowflake
   Snowflake-d0050:
     name: 🌴 [HT] Linktree
     type: snowflake
   Snowflake-bf976:
     name: 🍏[HT] B2C eCommerce & Retail] V2
-    type: snowflake
-  Snowflake-cd6b9:
-    name: 🛍️ [HT] B2C eCommerce & Retail
     type: snowflake
   linktree-snowflake:
     name: Snowflake [LINKTREE]
