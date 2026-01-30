@@ -2,9 +2,6 @@
 # Changes made here will be ignored. Please use the Hightouch dashboard to create and edit sources and destinations.
 
 sources:
-  cdw-marketplace:
-    name: 🔁 CDW [Marketplace]
-    type: snowflake
   Snowflake-cd6b9:
     name: 📌 [HT] B2C eCommerce & Retail
     type: snowflake
