@@ -39,6 +39,9 @@ sources:
     name: Billy Databricks Personal
     type: databricks
 destinations:
+  linktree-internal-messaging-service:
+    name: Linktree Internal Messaging Service
+    type: webhookV2
   earl-s-iterable-project-tejas-hightouch-io-hightouch-email-project-86545:
     type: iterable
   undefined-98024-b2b8e:
