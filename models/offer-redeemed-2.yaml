@@ -1,0 +1,94 @@
+name: OFFER REDEEMED
+source: Snowflake-cd6b9
+type: raw_sql
+rawSql: |-
+  WITH base_offers AS (
+    SELECT
+      e.EVENT_ID,
+      e.USER_ID,
+      e.CAMPAIGN,
+      e.SOURCE,
+      e.NUMBER_7,
+      e.NUMBER_10,
+      e.NUMBER_30,
+      e.NUMBER_100,
+      e.NUMBER_365,
+      e.NUMBER_1000,
+      e.BOOLEAN_34,
+      e.BOOLEAN_52
+    FROM public.events e
+  )
+  SELECT
+    CONCAT('OFFER-', EVENT_ID)                                  AS offer_redeemed_id,
+    USER_ID                                                     AS member_id,
+
+    /* When the Linkt Rewards offer was redeemed */
+    DATEADD('day', -NUMBER_365, CURRENT_DATE())                 AS offer_redeemed_at,
+
+    /* Channel aligned to Linkt Rewards experience */
+    CASE
+      WHEN NUMBER_10 % 3 = 0 THEN 'Rewards tab in Linkt app'
+      WHEN NUMBER_10 % 3 = 1 THEN 'Email from Linkt'
+      ELSE 'Push notification from Linkt Rewards'
+    END                                                         AS offer_redemption_channel,
+
+    /* Partner and offer language from Linkt Rewards page */
+    CASE
+      WHEN NUMBER_7 = 1 THEN 'Save 6c per litre on fuel at 7-Eleven'
+      WHEN NUMBER_7 = 2 THEN 'Save up to 20% off the base rate with Europcar'
+      WHEN NUMBER_7 = 3 THEN 'Up to $40 off servicing and inspections at mycar'
+      WHEN NUMBER_7 = 4 THEN 'Save on washes and detailing with Star Car Wash'
+      WHEN NUMBER_7 = 5 THEN 'Huge discounts on premium escapes, tours and cruises'
+      WHEN NUMBER_7 = 6 THEN 'Accommodation and travel deals for Linkt members'
+      ELSE 'Other Linkt Rewards partner offer'
+    END                                                         AS partner_offer_name,
+
+    CASE
+      WHEN NUMBER_7 = 1 THEN 'Fuel'
+      WHEN NUMBER_7 = 2 THEN 'Vehicle hire'
+      WHEN NUMBER_7 = 3 THEN 'Servicing & inspections'
+      WHEN NUMBER_7 = 4 THEN 'Car wash'
+      WHEN NUMBER_7 IN (5, 6) THEN 'Accommodation & travel'
+      ELSE 'Other'
+    END                                                         AS offer_category,
+
+    /* Engagement status for cross-sell and partner engagement metrics */
+    CASE
+      WHEN BOOLEAN_34 THEN 'Offer redeemed and applied to toll road trip'
+      WHEN BOOLEAN_52 THEN 'Offer viewed in Linkt app but not yet applied'
+      ELSE 'Historical or lapsed offer'
+    END                                                         AS offer_engagement_status,
+
+    NUMBER_1000                                                 AS reward_savings_cents,
+    NUMBER_30                                                   AS offers_viewed_in_last_30_days,
+    NUMBER_10                                                   AS total_offers_seen_from_linkt,
+
+    /* Early tenure vs established redemptions */
+    CASE
+      WHEN ROW_NUMBER() OVER (
+             PARTITION BY USER_ID
+             ORDER BY DATEADD('day', -NUMBER_365, CURRENT_DATE())
+           ) = 1
+      THEN 'First Linkt Rewards offer redemption'
+      ELSE 'Subsequent Linkt Rewards offer redemption'
+    END                                                         AS redemption_tenure_stage,
+
+    CASE
+      WHEN NUMBER_30 >= 3 THEN 'High partner offer engagement'
+      WHEN NUMBER_30 BETWEEN 1 AND 2 THEN 'Moderate partner offer engagement'
+      ELSE 'Low partner offer engagement'
+    END                                                         AS partner_engagement_segment,
+
+    /* Foreign key to Partners model (many offers : 1 partner) */
+    CASE
+      WHEN NUMBER_7 = 1 THEN 'PARTNER-7ELEVEN'
+      WHEN NUMBER_7 = 2 THEN 'PARTNER-EUROPCAR'
+      WHEN NUMBER_7 = 3 THEN 'PARTNER-MYCAR'
+      WHEN NUMBER_7 = 4 THEN 'PARTNER-STARCARWASH'
+      WHEN NUMBER_7 = 5 THEN 'PARTNER-PREMIUMESCAPES'
+      WHEN NUMBER_7 = 6 THEN 'PARTNER-ACCOMMODATION'
+      ELSE 'PARTNER-OTHER'
+    END                                                         AS partner_id
+
+  FROM base_offers;
+primaryKey: OFFER_REDEEMED_ID
