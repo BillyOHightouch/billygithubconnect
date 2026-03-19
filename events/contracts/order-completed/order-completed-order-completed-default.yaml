@@ -18,3 +18,4 @@ schema:
   description: Event fires when a user completes checkout
 type: track
 version: default
+includeBuiltInContext: true
