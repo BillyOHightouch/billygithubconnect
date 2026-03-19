@@ -1,0 +1,89 @@
+name: LINKT REWARDS MEMBERS
+source: Snowflake-cd6b9
+type: raw_sql
+rawSql: |-
+  SELECT
+    /* Core member identifiers */
+    u.USER_ID                                                  AS member_id,
+    u.FIRST_NAME                                               AS first_name,
+    u.LAST_NAME                                                AS last_name,
+    u.EMAIL                                                    AS email,
+    u.GENDER                                                   AS gender,
+
+    /* Link to Households related model */
+    u.ACCOUNT_ID                                               AS household_id,
+
+    /* (Optional) keep an explicit tolling account label for marketers */
+    u.ACCOUNT_ID                                               AS tolling_account_id,
+
+    /* Age and DOB derived from numeric fields */
+    18 + (u.NUMBER_30 % 50)                                    AS age,
+    DATEADD(
+      'year',
+      -(18 + (u.NUMBER_30 % 50)),
+      CURRENT_DATE()
+    )                                                          AS DOB,
+
+    /* Registration and tenure aligned to Linkt account language */
+    DATEADD('day', -u.NUMBER_365, CURRENT_DATE())              AS date_registered,
+    u.NUMBER_365                                               AS member_tenure_days,
+
+    /* Linkt & Linkt Rewards status (active account, suspended, etc.) */
+    CASE
+      WHEN COALESCE(a.BOOLEAN_87, u.BOOLEAN_87) THEN 'Suspended Linkt account'
+      WHEN COALESCE(a.BOOLEAN_52, u.BOOLEAN_52) THEN 'Active Linkt Rewards member'
+      WHEN COALESCE(a.BOOLEAN_34, u.BOOLEAN_34) THEN 'Eligible for Linkt Rewards'
+      ELSE 'Standard Linkt tolling customer'
+    END                                                        AS linkt_rewards_member_status,
+
+    /* Recent usage to support early-tenure and at-risk drivers */
+    u.NUMBER_30                                               AS days_since_last_linkt_trip,
+    CASE
+      WHEN u.NUMBER_30 <= 7 THEN 'Highly engaged in Linkt app'
+      WHEN u.NUMBER_30 <= 30 THEN 'Active Linkt driver'
+      WHEN u.NUMBER_30 <= 90 THEN 'At-risk driver (declining toll road usage)'
+      ELSE 'Dormant Linkt account (no recent toll road trips)'
+    END                                                        AS linkt_usage_segment,
+
+    /* Household-level NPS-style satisfaction for at-risk churn */
+    CASE
+      WHEN a.NUMBER_10 >= 9 THEN 'Promoter'
+      WHEN a.NUMBER_10 >= 7 THEN 'Passive'
+      ELSE 'Detractor'
+    END                                                        AS household_nps_category,
+
+    /* Preferred Linkt Rewards category using partner language */
+    CASE
+      WHEN u.NUMBER_10 BETWEEN 0 AND 1 THEN 'Fuel offers (7-Eleven)'
+      WHEN u.NUMBER_10 BETWEEN 2 AND 3 THEN 'Car servicing & inspections (mycar)'
+      WHEN u.NUMBER_10 BETWEEN 4 AND 5 THEN 'Car washes (Star Car Wash)'
+      WHEN u.NUMBER_10 BETWEEN 6 AND 7 THEN 'Vehicle hire (Europcar)'
+      WHEN u.NUMBER_10 BETWEEN 8 AND 9 THEN 'Premium escapes, tours and cruises'
+      ELSE 'Accommodation and travel deals'
+    END                                                        AS preferred_linkt_rewards_category,
+
+    /* Primary tolling city aligned to Linkt locations */
+    CASE
+      WHEN a.NUMBER_100 % 3 = 0 THEN 'Sydney toll roads'
+      WHEN a.NUMBER_100 % 3 = 1 THEN 'Melbourne toll roads'
+      ELSE 'Brisbane toll roads'
+    END                                                        AS primary_tolling_city,
+
+    /* Tenure-based segments for onboarding vs established households */
+    CASE
+      WHEN u.NUMBER_365 <= 30 THEN 'New Linkt Rewards member (onboarding)'
+      WHEN u.NUMBER_365 <= 90 THEN 'Early tenure Linkt household'
+      ELSE 'Established Linkt household'
+    END                                                        AS tenure_segment,
+
+    /* Loyalty activity for winback dormant accounts */
+    CASE
+      WHEN u.NUMBER_30 > 90 THEN 'Dormant loyalty member - candidate for winback'
+      WHEN u.NUMBER_30 BETWEEN 31 AND 90 THEN 'Declining-usage household'
+      ELSE 'Active loyalty member'
+    END                                                        AS loyalty_activity_segment
+
+  FROM public.users u
+  LEFT JOIN public.accounts a
+    ON a.ACCOUNT_ID = u.ACCOUNT_ID;
+primaryKey: MEMBER_ID
