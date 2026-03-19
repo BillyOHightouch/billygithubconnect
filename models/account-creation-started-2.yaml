@@ -1,0 +1,35 @@
+name: ACCOUNT CREATION STARTED
+source: Snowflake-cd6b9
+type: raw_sql
+rawSql: |-
+  SELECT
+    CONCAT('EVT-ACCT-START-', e.EVENT_ID)                      AS account_creation_started_event_id,
+    e.USER_ID                                                  AS member_id,
+    'Account Creation Started'                                 AS event_name,
+    'account_creation_started'                                 AS event_type,
+
+    /* When the signup flow was started */
+    DATEADD('day', -e.NUMBER_365, CURRENT_TIMESTAMP())         AS created_at,
+
+    /* Channel for starting a Linkt account */
+    CASE
+      WHEN e.SOURCE % 2 = 0 THEN 'Linkt app - open an account'
+      ELSE 'Linkt website - open an account'
+    END                                                        AS signup_channel,
+
+    /* Funnel step description */
+    CASE
+      WHEN e.NUMBER_10 % 3 = 0 THEN 'Selected Help me choose for account'
+      WHEN e.NUMBER_10 % 3 = 1 THEN 'Entered account and vehicle details'
+      ELSE 'Reviewing Linkt Rewards information before signup'
+    END                                                        AS signup_funnel_step,
+
+    /* Eligibility / friction signals */
+    CASE
+      WHEN e.BOOLEAN_87 THEN 'Signup interrupted due to suspended account'
+      WHEN e.BOOLEAN_52 THEN 'Signup started by eligible Linkt customer'
+      WHEN e.BOOLEAN_34 THEN 'Signup started from Linkt Rewards promotion'
+      ELSE 'Standard signup start'
+    END                                                        AS signup_context
+  FROM public.events e;
+primaryKey: ACCOUNT_CREATION_STARTED_EVENT_ID
