@@ -12,8 +12,6 @@ rawSql: |-
 
     /* Link to Households related model */
     u.ACCOUNT_ID                                               AS household_id,
-
-    /* (Optional) keep an explicit tolling account label for marketers */
     u.ACCOUNT_ID                                               AS tolling_account_id,
 
     /* Age and DOB derived from numeric fields */
@@ -24,11 +22,14 @@ rawSql: |-
       CURRENT_DATE()
     )                                                          AS DOB,
 
-    /* Registration and tenure aligned to Linkt account language */
+    /* Registration and tenure */
     DATEADD('day', -u.NUMBER_365, CURRENT_DATE())              AS date_registered,
     u.NUMBER_365                                               AS member_tenure_days,
 
-    /* Linkt & Linkt Rewards status (active account, suspended, etc.) */
+    /* New: last updated timestamp for the member profile */
+    DATEADD('day', -u.NUMBER_100, CURRENT_TIMESTAMP())         AS LAST_UPDATED,
+
+    /* Linkt & Linkt Rewards status */
     CASE
       WHEN COALESCE(a.BOOLEAN_87, u.BOOLEAN_87) THEN 'Suspended Linkt account'
       WHEN COALESCE(a.BOOLEAN_52, u.BOOLEAN_52) THEN 'Active Linkt Rewards member'
@@ -45,7 +46,7 @@ rawSql: |-
       ELSE 'Dormant Linkt account (no recent toll road trips)'
     END                                                        AS linkt_usage_segment,
 
-    /* Household-level NPS-style satisfaction for at-risk churn */
+    /* Household-level NPS-style satisfaction */
     CASE
       WHEN a.NUMBER_10 >= 9 THEN 'Promoter'
       WHEN a.NUMBER_10 >= 7 THEN 'Passive'
@@ -69,7 +70,7 @@ rawSql: |-
       ELSE 'Brisbane toll roads'
     END                                                        AS primary_tolling_city,
 
-    /* Tenure-based segments for onboarding vs established households */
+    /* Tenure-based segments */
     CASE
       WHEN u.NUMBER_365 <= 30 THEN 'New Linkt Rewards member (onboarding)'
       WHEN u.NUMBER_365 <= 90 THEN 'Early tenure Linkt household'
