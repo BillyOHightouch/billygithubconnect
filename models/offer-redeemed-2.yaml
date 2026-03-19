@@ -21,18 +21,16 @@ rawSql: |-
   SELECT
     CONCAT('OFFER-', EVENT_ID)                                  AS offer_redeemed_id,
     USER_ID                                                     AS member_id,
+    MD5(CONCAT(USER_ID, '|', SOURCE, '|', EVENT_ID))           AS anonymous_id,
 
-    /* When the Linkt Rewards offer was redeemed */
-    DATEADD('day', -NUMBER_365, CURRENT_DATE())                 AS offer_redeemed_at,
+    DATEADD('day', -NUMBER_365, CURRENT_TIMESTAMP())            AS offer_redeemed_at,
 
-    /* Channel aligned to Linkt Rewards experience */
     CASE
       WHEN NUMBER_10 % 3 = 0 THEN 'Rewards tab in Linkt app'
       WHEN NUMBER_10 % 3 = 1 THEN 'Email from Linkt'
       ELSE 'Push notification from Linkt Rewards'
     END                                                         AS offer_redemption_channel,
 
-    /* Partner and offer language from Linkt Rewards page */
     CASE
       WHEN NUMBER_7 = 1 THEN 'Save 6c per litre on fuel at 7-Eleven'
       WHEN NUMBER_7 = 2 THEN 'Save up to 20% off the base rate with Europcar'
@@ -52,7 +50,6 @@ rawSql: |-
       ELSE 'Other'
     END                                                         AS offer_category,
 
-    /* Engagement status for cross-sell and partner engagement metrics */
     CASE
       WHEN BOOLEAN_34 THEN 'Offer redeemed and applied to toll road trip'
       WHEN BOOLEAN_52 THEN 'Offer viewed in Linkt app but not yet applied'
@@ -63,11 +60,10 @@ rawSql: |-
     NUMBER_30                                                   AS offers_viewed_in_last_30_days,
     NUMBER_10                                                   AS total_offers_seen_from_linkt,
 
-    /* Early tenure vs established redemptions */
     CASE
       WHEN ROW_NUMBER() OVER (
              PARTITION BY USER_ID
-             ORDER BY DATEADD('day', -NUMBER_365, CURRENT_DATE())
+             ORDER BY DATEADD('day', -NUMBER_365, CURRENT_TIMESTAMP())
            ) = 1
       THEN 'First Linkt Rewards offer redemption'
       ELSE 'Subsequent Linkt Rewards offer redemption'
@@ -79,7 +75,6 @@ rawSql: |-
       ELSE 'Low partner offer engagement'
     END                                                         AS partner_engagement_segment,
 
-    /* Foreign key to Partners model (many offers : 1 partner) */
     CASE
       WHEN NUMBER_7 = 1 THEN 'PARTNER-7ELEVEN'
       WHEN NUMBER_7 = 2 THEN 'PARTNER-EUROPCAR'
