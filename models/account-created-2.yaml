@@ -5,26 +5,23 @@ rawSql: |-
   SELECT
     CONCAT('EVT-ACCT-CREATED-', e.EVENT_ID)                    AS account_created_event_id,
     e.USER_ID                                                  AS member_id,
+    MD5(CONCAT(e.USER_ID, '|', e.SOURCE, '|', e.EVENT_ID))     AS anonymous_id,
     'Account Created'                                          AS event_name,
     'account_created'                                          AS event_type,
 
-    /* When the Linkt account was successfully created */
     DATEADD('day', -e.NUMBER_365, CURRENT_TIMESTAMP())         AS created_at,
 
-    /* Account type aligned to Linkt language */
     CASE
       WHEN e.NUMBER_10 % 3 = 0 THEN 'Consumer Linkt account'
       WHEN e.NUMBER_10 % 3 = 1 THEN 'Household Rewards account'
       ELSE 'Tolling-only account (no Rewards yet)'
     END                                                        AS account_type_created,
 
-    /* Channel where the account was created */
     CASE
       WHEN e.SOURCE % 2 = 0 THEN 'Created via Linkt app'
       ELSE 'Created via Linkt website'
     END                                                        AS account_creation_channel,
 
-    /* Onboarding segment for first rewarded trip use cases */
     CASE
       WHEN e.BOOLEAN_34 THEN 'New member opted in to Linkt Rewards at signup'
       WHEN e.BOOLEAN_52 THEN 'New member eligible for Rewards but not yet opted in'
