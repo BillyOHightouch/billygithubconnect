@@ -5,20 +5,18 @@ rawSql: |-
   SELECT
     CONCAT('EVT-PAGE-', e.EVENT_ID)                            AS page_viewed_event_id,
     e.USER_ID                                                  AS member_id,
+    MD5(CONCAT(e.USER_ID, '|', e.SOURCE, '|', e.EVENT_ID))     AS anonymous_id,
     'Page Viewed'                                              AS event_name,
     'page_viewed'                                              AS event_type,
 
-    /* When the page was viewed */
     DATEADD('day', -e.NUMBER_365, CURRENT_TIMESTAMP())         AS created_at,
 
-    /* Channel aligned to Linkt experience (app vs website) */
     CASE
       WHEN e.SOURCE % 3 = 0 THEN 'Linkt app - Rewards tab'
       WHEN e.SOURCE % 3 = 1 THEN 'Linkt website'
       ELSE 'Linkt app - Account Home'
     END                                                        AS page_channel,
 
-    /* Page category using Linkt language */
     CASE
       WHEN e.NUMBER_10 % 5 = 0 THEN 'Linkt Rewards offers'
       WHEN e.NUMBER_10 % 5 = 1 THEN 'Accounts and passes'
@@ -27,14 +25,12 @@ rawSql: |-
       ELSE 'Help and FAQs'
     END                                                        AS page_category,
 
-    /* City context for toll road usage */
     CASE
       WHEN e.NUMBER_100 % 3 = 0 THEN 'Sydney'
       WHEN e.NUMBER_100 % 3 = 1 THEN 'Melbourne'
       ELSE 'Brisbane'
     END                                                        AS primary_city,
 
-    /* Engagement signal for early tenure and at-risk behaviour */
     CASE
       WHEN e.BOOLEAN_34 THEN 'Viewed Linkt Rewards details'
       WHEN e.BOOLEAN_52 THEN 'Viewed account and billing page'
