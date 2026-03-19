@@ -1,0 +1,44 @@
+name: IDENTIFY
+source: Snowflake-cd6b9
+type: raw_sql
+rawSql: |-
+  SELECT
+    CONCAT('EVT-IDENTIFY-', e.EVENT_ID)                           AS identify_event_id,
+    e.USER_ID                                                     AS member_id,
+    'Identify'                                                    AS event_name,
+    'identify'                                                    AS event_type,
+
+    /* When the identity was established/updated */
+    DATEADD('day', -e.NUMBER_365, CURRENT_TIMESTAMP())            AS created_at,
+
+    /* Channel where the member was identified */
+    CASE
+      WHEN e.SOURCE % 3 = 0 THEN 'Linkt app identify'
+      WHEN e.SOURCE % 3 = 1 THEN 'Linkt website identify'
+      ELSE 'Partner channel identify'
+    END                                                           AS identify_channel,
+
+    /* Context for the identity event */
+    CASE
+      WHEN e.NUMBER_10 % 3 = 0 THEN 'Anonymous app user became known Linkt member'
+      WHEN e.NUMBER_10 % 3 = 1 THEN 'Existing Linkt account linked to Rewards'
+      ELSE 'Email added or updated for Linkt Rewards member'
+    END                                                           AS identify_context,
+
+    /* Deterministic identifier used */
+    CASE
+      WHEN e.NUMBER_7 % 3 = 0 THEN 'Email address'
+      WHEN e.NUMBER_7 % 3 = 1 THEN 'Linkt Rewards member ID'
+      ELSE 'Tolling account ID'
+    END                                                           AS primary_identifier_type,
+
+    /* Status of the identification */
+    CASE
+      WHEN e.BOOLEAN_34 THEN 'First-time identification'
+      WHEN e.BOOLEAN_52 THEN 'Re-identification on new device'
+      WHEN e.BOOLEAN_87 THEN 'Identification on suspended account'
+      ELSE 'Background identity refresh'
+    END                                                           AS identify_status
+
+  FROM public.events e;
+primaryKey: IDENTIFY_EVENT_ID
