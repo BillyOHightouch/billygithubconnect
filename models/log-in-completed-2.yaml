@@ -1,0 +1,37 @@
+name: LOG IN COMPLETED
+source: Snowflake-cd6b9
+type: raw_sql
+rawSql: |-
+  SELECT
+    CONCAT('EVT-LOGIN-', e.EVENT_ID)                           AS login_completed_event_id,
+    e.USER_ID                                                  AS member_id,
+    'Log In Completed'                                         AS event_name,
+    'login_completed'                                          AS event_type,
+
+    /* When the member successfully logged in */
+    DATEADD('day', -e.NUMBER_365, CURRENT_TIMESTAMP())         AS created_at,
+
+    /* Login surface */
+    CASE
+      WHEN e.SOURCE % 3 = 0 THEN 'Linkt app login'
+      WHEN e.SOURCE % 3 = 1 THEN 'Linkt website login'
+      ELSE 'Deep link to Rewards tab in Linkt app'
+    END                                                        AS login_channel,
+
+    /* Reason for login aligned to use cases */
+    CASE
+      WHEN e.NUMBER_10 % 4 = 0 THEN 'Checking toll road trips and payments'
+      WHEN e.NUMBER_10 % 4 = 1 THEN 'Exploring Linkt Rewards offers'
+      WHEN e.NUMBER_10 % 4 = 2 THEN 'Managing vehicles and tags'
+      ELSE 'Updating account and billing details'
+    END                                                        AS login_intent,
+
+    /* Session-level engagement for churn / at-risk analysis */
+    CASE
+      WHEN e.BOOLEAN_34 THEN 'Login followed by Rewards offer view'
+      WHEN e.BOOLEAN_52 THEN 'Login followed by account or billing activity'
+      WHEN e.BOOLEAN_87 THEN 'Login from suspended or at-risk account'
+      ELSE 'Standard login session'
+    END                                                        AS login_engagement_context
+  FROM public.events e;
+primaryKey: LOGIN_COMPLETED_EVENT_ID
