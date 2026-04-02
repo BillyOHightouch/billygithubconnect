@@ -42,6 +42,9 @@ sources:
     name: Billy Databricks Personal
     type: databricks
 destinations:
+  undefined-ff473:
+    name: Warehouse Sync Logs
+    type: sync-logs
   linktree-internal-messaging-service:
     name: Linktree Internal Messaging Service
     type: webhookV2
