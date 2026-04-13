@@ -1,0 +1,37 @@
+model: air-new-zealand-capi-model
+destination: undefined-2ed35-391bf
+config:
+  mappings:
+    - to: event_source_url
+      from: EVENT_SOURCE_URL
+      type: standard
+    - to: event_id
+      from: EVENT_ID
+      type: standard
+    - to: action_source
+      from: ACTION_SOURCE
+      type: standard
+    - to: custom_data.value
+      from: VALUE
+      type: standard
+    - to: custom_data.currency
+      from: CURRENCY
+      type: standard
+    - to: original_event_data.event_name
+      from: EVENT_NAME
+      type: standard
+    - to: user_data.em
+      from: EMAIL
+      type: standard
+    - to: user_data.ph
+      from: PHONE
+      type: standard
+  eventName:
+    from: EVENT_NAME
+  timestamp:
+    from: EVENT_TIME
+  configVersion: 1
+  customMappings: []
+schedule:
+  type: manual
+schedulePaused: false
