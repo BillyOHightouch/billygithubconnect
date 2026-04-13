@@ -1,0 +1,207 @@
+name: AIR NEW ZEALAND CAPI MODEL
+source: Snowflake-bf976
+type: raw_sql
+rawSql: |-
+  WITH base AS (
+    SELECT
+      e.event_id,
+      e.user_id,
+      e.campaign,
+      e.source,
+      e.number_7,
+      e.number_10,
+      e.number_30,
+      e.number_100,
+      e.number_365,
+      e.number_1000,
+      e.boolean_34,
+      e.boolean_52,
+      e.boolean_87,
+      u.account_id,
+      a.email1,
+      a.email2,
+
+      CASE
+        WHEN COALESCE(e.number_100, 0) < 68 THEN 'website'
+        WHEN COALESCE(e.number_100, 0) < 86 THEN 'app'
+        WHEN COALESCE(e.number_100, 0) < 91 THEN 'physical_store'
+        WHEN COALESCE(e.number_100, 0) < 95 THEN 'phone_call'
+        WHEN COALESCE(e.number_100, 0) < 98 THEN 'chat'
+        ELSE 'other'
+      END AS action_source
+
+    FROM public.events e
+    LEFT JOIN public.users u
+      ON e.user_id = u.user_id
+    LEFT JOIN public.accounts a
+      ON u.account_id = a.account_id
+  ),
+
+  identity_enriched AS (
+    SELECT
+      *,
+
+      CASE MOD(COALESCE(number_10, 0), 10)
+        WHEN 0 THEN 'Alex'
+        WHEN 1 THEN 'Sam'
+        WHEN 2 THEN 'Jordan'
+        WHEN 3 THEN 'Taylor'
+        WHEN 4 THEN 'Casey'
+        WHEN 5 THEN 'Jamie'
+        WHEN 6 THEN 'Morgan'
+        WHEN 7 THEN 'Riley'
+        WHEN 8 THEN 'Avery'
+        ELSE 'Cameron'
+      END AS first_name,
+
+      CASE MOD(COALESCE(number_30, 0), 10)
+        WHEN 0 THEN 'Smith'
+        WHEN 1 THEN 'Brown'
+        WHEN 2 THEN 'Nguyen'
+        WHEN 3 THEN 'Wilson'
+        WHEN 4 THEN 'Taylor'
+        WHEN 5 THEN 'Anderson'
+        WHEN 6 THEN 'Thomas'
+        WHEN 7 THEN 'Jackson'
+        WHEN 8 THEN 'Martin'
+        ELSE 'Lee'
+      END AS last_name,
+
+      CONCAT(
+        '+64',
+        TO_VARCHAR(
+          200000000 + MOD(
+            COALESCE(number_1000, 0) * 1000
+            + COALESCE(number_365, 0) * 10
+            + COALESCE(number_7, 0),
+            799999999
+          )
+        )
+      ) AS phone,
+
+      CONCAT(
+        'PNR',
+        LPAD(
+          TO_VARCHAR(
+            MOD(
+              COALESCE(number_1000, 0) * 100
+              + COALESCE(number_30, 0) * 10
+              + COALESCE(number_7, 0),
+              1000000
+            )
+          ),
+          6,
+          '0'
+        )
+      ) AS booking_reference
+
+    FROM base
+  )
+
+  SELECT
+    CONCAT('booking_completed_', event_id) AS event_id,
+    'BOOKING COMPLETED' AS event_name,
+    DATEADD('day', -COALESCE(number_7, 0), CURRENT_TIMESTAMP()) AS event_time,
+
+    action_source,
+
+    CASE
+      WHEN action_source = 'website'
+        THEN CONCAT('https://www.demo-travel.com/booking/confirmation/', event_id)
+      ELSE NULL
+    END AS event_source_url,
+
+    CASE
+      WHEN action_source = 'website' AND MOD(COALESCE(number_10, 0), 4) = 0
+        THEN 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_2 like Mac OS X) AppleWebKit/605.1.15 Version/18.2 Mobile/15E148 Safari/604.1'
+      WHEN action_source = 'website'
+        THEN 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36'
+      ELSE NULL
+    END AS client_user_agent,
+
+    user_id AS external_id,
+    LOWER(COALESCE(email1, email2)) AS email,
+    first_name,
+    last_name,
+    phone,
+
+    booking_reference,
+
+    ROUND(COALESCE(number_1000, 0) + COALESCE(number_100, 0), 2) AS value,
+    CASE
+      WHEN boolean_34 THEN 'NZD'
+      WHEN boolean_52 THEN 'AUD'
+      ELSE 'USD'
+    END AS currency,
+
+    CASE
+      WHEN source = 1 THEN 'Paid Search'
+      WHEN source = 2 THEN 'Paid Social'
+      WHEN source = 3 THEN 'Display'
+      WHEN source = 4 THEN 'Email'
+      WHEN source = 5 THEN 'Affiliate'
+      ELSE 'Direct'
+    END AS marketing_source,
+
+    CASE
+      WHEN number_7 <= 1 THEN 'Domestic'
+      WHEN number_7 <= 3 THEN 'Short Haul'
+      ELSE 'Long Haul'
+    END AS trip_type,
+
+    CASE
+      WHEN boolean_87 THEN 'Business'
+      WHEN boolean_52 THEN 'Premium Economy'
+      ELSE 'Economy'
+    END AS cabin_class,
+
+    CASE
+      WHEN boolean_87 THEN 'Loyalty Member'
+      ELSE 'Guest'
+    END AS loyalty_status,
+
+    CASE
+      WHEN action_source = 'app' AND boolean_52 THEN 'iOS'
+      WHEN action_source = 'app' THEN 'Android'
+      ELSE NULL
+    END AS app_platform,
+
+    CASE
+      WHEN action_source = 'app' THEN 'Demo Travel App'
+      ELSE NULL
+    END AS app_name,
+
+    CASE
+      WHEN action_source = 'physical_store' AND boolean_34 THEN 'Airport Service Desk'
+      WHEN action_source = 'physical_store' THEN 'Retail Travel Agency'
+      ELSE NULL
+    END AS store_type,
+
+    CASE
+      WHEN action_source = 'physical_store' AND MOD(COALESCE(number_10, 0), 3) = 0 THEN 'Auckland Airport'
+      WHEN action_source = 'physical_store' AND MOD(COALESCE(number_10, 0), 3) = 1 THEN 'Sydney CBD Agency'
+      WHEN action_source = 'physical_store' THEN 'Wellington Airport'
+      ELSE NULL
+    END AS store_location,
+
+    CASE
+      WHEN action_source = 'phone_call' AND boolean_87 THEN 'Priority Contact Centre'
+      WHEN action_source = 'phone_call' THEN 'Standard Contact Centre'
+      ELSE NULL
+    END AS phone_channel,
+
+    CASE
+      WHEN action_source = 'chat' AND boolean_34 THEN 'web_chat'
+      WHEN action_source = 'chat' THEN 'messaging_assistant'
+      ELSE NULL
+    END AS chat_channel,
+
+    CASE
+      WHEN action_source = 'other' AND boolean_52 THEN 'online_travel_agency'
+      WHEN action_source = 'other' THEN 'partner_booking_feed'
+      ELSE NULL
+    END AS partner_channel
+
+  FROM identity_enriched
+  ;
+primaryKey: EVENT_ID
