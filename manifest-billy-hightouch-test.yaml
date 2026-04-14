@@ -93,6 +93,7 @@ destinations:
   hightouch-personalization-api-b2bc3:
     type: hightouch-personalization-api
   undefined-2ed35-391bf:
+    name: Meta Conversions API - NEw
     type: facebookConversions
   facebook-custom-audiences-v2-35269:
     type: facebook
