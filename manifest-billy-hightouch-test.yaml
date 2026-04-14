@@ -45,6 +45,9 @@ sources:
     name: Billy Databricks Personal
     type: databricks
 destinations:
+  google-cloud-storage:
+    name: Google Cloud Storage
+    type: gcs
   undefined-ff473:
     name: Warehouse Sync Logs
     type: sync-logs
