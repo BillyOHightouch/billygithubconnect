@@ -1,6 +1,6 @@
 name: signed_up
-onSchemaViolation: BLOCK_EVENT
-onUndeclaredFields: OMIT_FIELDS
+onSchemaViolation: ALLOW_EVENT
+onUndeclaredFields: ALLOW_EVENT
 schema:
   type: object
   properties:
