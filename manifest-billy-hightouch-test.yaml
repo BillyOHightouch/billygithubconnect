@@ -45,6 +45,9 @@ sources:
     name: Billy Databricks Personal
     type: databricks
 destinations:
+  http-node-js-function:
+    name: HTTP Node.JS Function
+    type: webhookV2
   google-cloud-storage:
     name: Google Cloud Storage
     type: gcs
