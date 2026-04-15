@@ -1,0 +1,19 @@
+name: signed_up
+onSchemaViolation: BLOCK_EVENT
+onUndeclaredFields: OMIT_FIELDS
+schema:
+  type: object
+  properties:
+    context:
+      type: object
+      properties:
+        '':
+          type: string
+    properties:
+      type: object
+      properties:
+        abc_123:
+          type: string
+type: track
+version: default
+includeBuiltInContext: false
