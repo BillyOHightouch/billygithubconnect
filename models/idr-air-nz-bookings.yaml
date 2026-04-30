@@ -3,155 +3,143 @@ source: Snowflake-aaa71
 description: Bookings table
 type: raw_sql
 rawSql: |-
-  WITH limited_events AS (
-      SELECT * FROM public.events LIMIT 15000
+  WITH limited_users AS (
+      SELECT * FROM public.users LIMIT 2143
+  ),
+  loyalty_base AS (
+      SELECT
+          CONCAT('LYT-', LPAD(TO_VARCHAR(MOD(ABS(HASH(USER_ID)), 10000000000)), 10, '0')) AS loyalty_number,
+          USER_ID AS customer_id,
+          CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) AS VARCHAR), 8, '0')) AS airpoints_number,
+          NUMBER_100,
+          NUMBER_30,
+          NUMBER_1000,
+          NUMBER_365,
+          NUMBER_10,
+          NUMBER_7,
+          BOOLEAN_34,
+          BOOLEAN_52,
+          BOOLEAN_87
+      FROM limited_users
+
+      UNION ALL
+
+      SELECT
+          CONCAT('LYT-', LPAD(TO_VARCHAR(MOD(ABS(HASH(CONCAT(USER_ID, '-2'))), 10000000000)), 10, '0')),
+          CONCAT(USER_ID, '-2'),
+          CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 3000 AS VARCHAR), 8, '0')),
+          NUMBER_100, NUMBER_30, NUMBER_1000, NUMBER_365, NUMBER_10, NUMBER_7,
+          BOOLEAN_34, BOOLEAN_52, BOOLEAN_87
+      FROM limited_users
+
+      UNION ALL
+
+      SELECT
+          CONCAT('LYT-', LPAD(TO_VARCHAR(MOD(ABS(HASH(CONCAT(USER_ID, '-3'))), 10000000000)), 10, '0')),
+          CONCAT(USER_ID, '-3'),
+          CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 6000 AS VARCHAR), 8, '0')),
+          NUMBER_100, NUMBER_30, NUMBER_1000, NUMBER_365, NUMBER_10, NUMBER_7,
+          BOOLEAN_34, BOOLEAN_52, BOOLEAN_87
+      FROM limited_users
+
+      UNION ALL
+
+      SELECT
+          CONCAT('LYT-', LPAD(TO_VARCHAR(MOD(ABS(HASH(CONCAT(USER_ID, '-4'))), 10000000000)), 10, '0')),
+          CONCAT(USER_ID, '-4'),
+          CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 9000 AS VARCHAR), 8, '0')),
+          NUMBER_100, NUMBER_30, NUMBER_1000, NUMBER_365, NUMBER_10, NUMBER_7,
+          BOOLEAN_34, BOOLEAN_52, BOOLEAN_87
+      FROM limited_users
+
+      UNION ALL
+
+      SELECT
+          CONCAT('LYT-', LPAD(TO_VARCHAR(MOD(ABS(HASH(CONCAT(USER_ID, '-5'))), 10000000000)), 10, '0')),
+          CONCAT(USER_ID, '-5'),
+          CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 12000 AS VARCHAR), 8, '0')),
+          NUMBER_100, NUMBER_30, NUMBER_1000, NUMBER_365, NUMBER_10, NUMBER_7,
+          BOOLEAN_34, BOOLEAN_52, BOOLEAN_87
+      FROM limited_users
+
+      UNION ALL
+
+      SELECT
+          CONCAT('LYT-', LPAD(TO_VARCHAR(MOD(ABS(HASH(CONCAT(USER_ID, '-6'))), 10000000000)), 10, '0')),
+          CONCAT(USER_ID, '-6'),
+          CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 15000 AS VARCHAR), 8, '0')),
+          NUMBER_100, NUMBER_30, NUMBER_1000, NUMBER_365, NUMBER_10, NUMBER_7,
+          BOOLEAN_34, BOOLEAN_52, BOOLEAN_87
+      FROM limited_users
+
+      UNION ALL
+
+      SELECT
+          CONCAT('LYT-', LPAD(TO_VARCHAR(MOD(ABS(HASH(CONCAT(USER_ID, '-7'))), 10000000000)), 10, '0')),
+          CONCAT(USER_ID, '-7'),
+          CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 18000 AS VARCHAR), 8, '0')),
+          NUMBER_100, NUMBER_30, NUMBER_1000, NUMBER_365, NUMBER_10, NUMBER_7,
+          BOOLEAN_34, BOOLEAN_52, BOOLEAN_87
+      FROM limited_users
+  ),
+  with_status AS (
+      SELECT
+          loyalty_number,
+          customer_id,
+          airpoints_number,
+          CASE
+              WHEN BOOLEAN_34 THEN 'Active'
+              WHEN BOOLEAN_52 THEN 'Lapsed'
+              WHEN BOOLEAN_87 THEN 'Suspended'
+              ELSE 'Pending Activation'
+          END AS membership_status,
+          NUMBER_100, NUMBER_30, NUMBER_1000, NUMBER_365, NUMBER_10, NUMBER_7,
+          BOOLEAN_34, BOOLEAN_52, BOOLEAN_87
+      FROM loyalty_base
   )
   SELECT
-      TO_VARCHAR(EVENT_ID) AS booking_id,
-      TO_VARCHAR(USER_ID)  AS customer_id,
-      CONCAT('NZ', LPAD(TO_VARCHAR(MOD(ABS(HASH(TO_VARCHAR(EVENT_ID))), 1000000)), 6, '0')) AS booking_reference,
-      DATEADD('day', -NUMBER_1000, CURRENT_DATE())::DATE AS booking_date,
-      DATEADD('day', -NUMBER_365, CURRENT_DATE())::DATE   AS travel_start_date,
-      DATEADD('day', -NUMBER_365 + NUMBER_7, CURRENT_DATE())::DATE AS travel_end_date,
-      CASE
-          WHEN NUMBER_10 < 3 THEN 'One-way'
-          WHEN NUMBER_10 < 7 THEN 'Return'
-          ELSE 'Multi-city'
-      END AS trip_type,
-      CASE
-          WHEN BOOLEAN_87 THEN 'Cancelled'
-          WHEN BOOLEAN_52 THEN 'Completed'
-          WHEN BOOLEAN_34 THEN 'Ticketed'
-          ELSE 'Pending'
-      END AS booking_status,
-      CASE MOD(NUMBER_7, 5)
-          WHEN 0 THEN 'AirNewZealand.com'
-          WHEN 1 THEN 'Mobile App'
-          WHEN 2 THEN 'Travel Agent'
-          WHEN 3 THEN 'Corporate Portal'
-          ELSE 'Contact Centre'
-      END AS booking_channel,
-      CASE MOD(NUMBER_7, 5)
-          WHEN 0 THEN 'NZ'
-          WHEN 1 THEN 'AU'
-          WHEN 2 THEN 'US'
-          WHEN 3 THEN 'GB'
-          ELSE 'SG'
-      END AS point_of_sale_country,
-      ((NUMBER_100 * 10) + NUMBER_30)::NUMBER(12, 2) AS total_fare_amount_nzd,
-      (NUMBER_30 * 1.5)::NUMBER(12, 2) AS total_taxes_amount_nzd,
-      (((NUMBER_100 * 10) + NUMBER_30) + (NUMBER_30 * 1.5))::NUMBER(12, 2) AS total_amount_nzd,
-      CASE WHEN NUMBER_7 >= 0 THEN 'NZD' END AS currency,
-      CASE MOD(NUMBER_10, 4)
-          WHEN 0 THEN 'Credit Card'
-          WHEN 1 THEN 'Airpoints Dollars + Pay'
-          WHEN 2 THEN 'Airpoints Dollars Only'
-          ELSE 'Voucher'
-      END AS payment_method,
-      CASE MOD(NUMBER_10, 3)
-          WHEN 0 THEN 'Visa'
-          WHEN 1 THEN 'Mastercard'
-          ELSE 'American Express'
-      END AS payment_card_type,
-      CASE
-          WHEN NUMBER_10 < 3 THEN 'Seat'
-          WHEN NUMBER_10 < 6 THEN 'Flexitime'
-          WHEN NUMBER_10 < 8 THEN 'Works'
-          ELSE 'Works Deluxe'
-      END AS fare_brand,
+      loyalty_number,
+      customer_id,
+      airpoints_number,
+      'Airpoints' AS program_name,
       CASE
           WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
           WHEN NUMBER_100 < 15 THEN 'Elite'
           WHEN NUMBER_100 < 35 THEN 'Gold'
           WHEN NUMBER_100 < 65 THEN 'Silver'
           ELSE 'Koru'
-      END AS loyalty_tier_at_booking,
-      CASE WHEN MOD(NUMBER_10, 4) IN (1, 2) THEN NUMBER_1000 ELSE 0 END AS airpoints_dollars_used,
-      CASE WHEN MOD(NUMBER_10, 4) IN (1, 2) THEN (NUMBER_100 * 2)::NUMBER(12, 2) ELSE 0::NUMBER(12, 2) END AS cash_component_nzd,
-      (
-          CASE WHEN BOOLEAN_52 THEN ((MOD(NUMBER_10, 2) + 1) * 35) ELSE 0 END
-          + CASE WHEN BOOLEAN_87 THEN (20 + MOD(NUMBER_30, 10)) ELSE 0 END
-          + CASE WHEN BOOLEAN_34 THEN (40 + MOD(NUMBER_100, 20)) ELSE 0 END
-          + CASE
-              WHEN MOD(NUMBER_10, 3) = 0 THEN (40 + MOD(NUMBER_30, 20))
-              WHEN MOD(NUMBER_10, 3) = 1 THEN ((MOD(NUMBER_7, 2) + 1) * 18)
-              WHEN MOD(NUMBER_10, 3) = 2 THEN (15 + MOD(NUMBER_30, 10))
-              ELSE 0
-          END
-      )::NUMBER(12,2) AS total_ancillary_revenue_nzd,
-      CAMPAIGN AS marketing_campaign,
-      SOURCE   AS marketing_source,
-      CASE MOD(SOURCE, 6)
-          WHEN 0 THEN 'facebook'
-          WHEN 1 THEN 'instagram'
-          WHEN 2 THEN 'google_search'
-          WHEN 3 THEN 'tiktok'
-          WHEN 4 THEN 'email'
-          ELSE 'affiliate'
-      END AS actual_marketing_source,
-      CASE MOD(NUMBER_7, 6)
-          WHEN 0 THEN 'kids fly free sale'
-          WHEN 1 THEN 'double status points'
-          WHEN 2 THEN 'winter pacific islands sale'
-          WHEN 3 THEN 'business premier upgrade push'
-          WHEN 4 THEN 'last minute weekend escape'
-          ELSE 'school holidays family sale'
-      END AS actual_marketing_campaign,
-      ARRAY_CONSTRUCT(
-          OBJECT_CONSTRUCT(
-              'leg_number', 1,
-              'marketing_carrier_code', CASE WHEN MOD(NUMBER_7 + 1, 5) IN (0, 1, 2, 3) THEN 'NZ' ELSE 'JQ' END,
-              'operating_carrier_code', CASE WHEN MOD(NUMBER_7 + 1, 7) < 5 THEN 'NZ' ELSE 'UA' END,
-              'flight_number', LPAD(TO_VARCHAR(100 + MOD(NUMBER_100 + 3, 900)), 4, '0'),
-              'departure_airport_code', CASE MOD(NUMBER_7 + 1, 8) WHEN 0 THEN 'AKL' WHEN 1 THEN 'WLG' WHEN 2 THEN 'CHC' WHEN 3 THEN 'ZQN' WHEN 4 THEN 'DUD' WHEN 5 THEN 'SYD' WHEN 6 THEN 'LAX' ELSE 'NRT' END,
-              'arrival_airport_code', CASE MOD(NUMBER_7 + 1 + 3, 8) WHEN 0 THEN 'AKL' WHEN 1 THEN 'WLG' WHEN 2 THEN 'CHC' WHEN 3 THEN 'ZQN' WHEN 4 THEN 'DUD' WHEN 5 THEN 'SYD' WHEN 6 THEN 'LAX' ELSE 'NRT' END,
-              'departure_country_code', CASE MOD(NUMBER_7 + 1, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END,
-              'arrival_country_code', CASE MOD(NUMBER_7 + 1 + 3, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END,
-              'route_type', CASE WHEN CASE MOD(NUMBER_7 + 1, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END = 'NZ' AND CASE MOD(NUMBER_7 + 1 + 3, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END = 'NZ' THEN 'Domestic' ELSE 'International' END,
-              'departure_scheduled_local', DATEADD('day', -NUMBER_365 + 1, CURRENT_DATE())::TIMESTAMP_NTZ,
-              'arrival_scheduled_local', DATEADD('hour', 2 + MOD(NUMBER_30, 6), DATEADD('day', -NUMBER_365 + 1, CURRENT_DATE())::TIMESTAMP_NTZ),
-              'cabin_class', CASE WHEN NUMBER_10 < 3 THEN 'Economy' WHEN NUMBER_10 < 6 THEN 'Premium Economy' WHEN NUMBER_10 < 8 THEN 'Business Premier' ELSE 'Economy Skycouch' END,
-              'airpoints_dollars_earned', CASE WHEN CASE MOD(NUMBER_7 + 1, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END = 'NZ' AND CASE MOD(NUMBER_7 + 1 + 3, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END = 'NZ' THEN 5 + MOD(NUMBER_30, 10) ELSE 25 + MOD(NUMBER_30, 50) END,
-              'status_points_earned', CASE WHEN CASE WHEN NUMBER_10 < 3 THEN 'Economy' WHEN NUMBER_10 < 6 THEN 'Premium Economy' WHEN NUMBER_10 < 8 THEN 'Business Premier' ELSE 'Economy Skycouch' END = 'Business Premier' THEN 90 WHEN CASE WHEN NUMBER_10 < 3 THEN 'Economy' WHEN NUMBER_10 < 6 THEN 'Premium Economy' WHEN NUMBER_10 < 8 THEN 'Business Premier' ELSE 'Economy Skycouch' END = 'Premium Economy' THEN 60 WHEN CASE WHEN NUMBER_10 < 3 THEN 'Economy' WHEN NUMBER_10 < 6 THEN 'Premium Economy' WHEN NUMBER_10 < 8 THEN 'Business Premier' ELSE 'Economy Skycouch' END = 'Economy Skycouch' THEN 45 ELSE 30 END,
-              'distance_miles', 500 + NUMBER_30 * 20,
-              'star_alliance_partner_flight', CASE WHEN MOD(NUMBER_7 + 1, 5) IN (0, 1, 2, 3) AND MOD(NUMBER_7 + 1, 7) >= 5 THEN TRUE ELSE FALSE END
-          ),
-          OBJECT_CONSTRUCT(
-              'leg_number', 2,
-              'marketing_carrier_code', CASE WHEN MOD(NUMBER_7 + 2, 5) IN (0, 1, 2, 3) THEN 'NZ' ELSE 'JQ' END,
-              'operating_carrier_code', CASE WHEN MOD(NUMBER_7 + 2, 7) < 5 THEN 'NZ' ELSE 'UA' END,
-              'flight_number', LPAD(TO_VARCHAR(100 + MOD(NUMBER_100 + 6, 900)), 4, '0'),
-              'departure_airport_code', CASE MOD(NUMBER_7 + 2, 8) WHEN 0 THEN 'AKL' WHEN 1 THEN 'WLG' WHEN 2 THEN 'CHC' WHEN 3 THEN 'ZQN' WHEN 4 THEN 'DUD' WHEN 5 THEN 'SYD' WHEN 6 THEN 'LAX' ELSE 'NRT' END,
-              'arrival_airport_code', CASE MOD(NUMBER_7 + 2 + 3, 8) WHEN 0 THEN 'AKL' WHEN 1 THEN 'WLG' WHEN 2 THEN 'CHC' WHEN 3 THEN 'ZQN' WHEN 4 THEN 'DUD' WHEN 5 THEN 'SYD' WHEN 6 THEN 'LAX' ELSE 'NRT' END,
-              'departure_country_code', CASE MOD(NUMBER_7 + 2, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END,
-              'arrival_country_code', CASE MOD(NUMBER_7 + 2 + 3, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END,
-              'route_type', CASE WHEN CASE MOD(NUMBER_7 + 2, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END = 'NZ' AND CASE MOD(NUMBER_7 + 2 + 3, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END = 'NZ' THEN 'Domestic' ELSE 'International' END,
-              'departure_scheduled_local', DATEADD('day', -NUMBER_365 + 2, CURRENT_DATE())::TIMESTAMP_NTZ,
-              'arrival_scheduled_local', DATEADD('hour', 2 + MOD(NUMBER_30 + 2, 6), DATEADD('day', -NUMBER_365 + 2, CURRENT_DATE())::TIMESTAMP_NTZ),
-              'cabin_class', CASE WHEN NUMBER_10 < 3 THEN 'Economy' WHEN NUMBER_10 < 6 THEN 'Premium Economy' WHEN NUMBER_10 < 8 THEN 'Business Premier' ELSE 'Economy Skycouch' END,
-              'airpoints_dollars_earned', CASE WHEN CASE MOD(NUMBER_7 + 2, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END = 'NZ' AND CASE MOD(NUMBER_7 + 2 + 3, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END = 'NZ' THEN 5 + MOD(NUMBER_30, 10) ELSE 25 + MOD(NUMBER_30, 50) END,
-              'status_points_earned', CASE WHEN CASE WHEN NUMBER_10 < 3 THEN 'Economy' WHEN NUMBER_10 < 6 THEN 'Premium Economy' WHEN NUMBER_10 < 8 THEN 'Business Premier' ELSE 'Economy Skycouch' END = 'Business Premier' THEN 90 WHEN CASE WHEN NUMBER_10 < 3 THEN 'Economy' WHEN NUMBER_10 < 6 THEN 'Premium Economy' WHEN NUMBER_10 < 8 THEN 'Business Premier' ELSE 'Economy Skycouch' END = 'Premium Economy' THEN 60 WHEN CASE WHEN NUMBER_10 < 3 THEN 'Economy' WHEN NUMBER_10 < 6 THEN 'Premium Economy' WHEN NUMBER_10 < 8 THEN 'Business Premier' ELSE 'Economy Skycouch' END = 'Economy Skycouch' THEN 45 ELSE 30 END,
-              'distance_miles', 500 + NUMBER_30 * 20,
-              'star_alliance_partner_flight', CASE WHEN MOD(NUMBER_7 + 2, 5) IN (0, 1, 2, 3) AND MOD(NUMBER_7 + 2, 7) >= 5 THEN TRUE ELSE FALSE END
-          ),
-          OBJECT_CONSTRUCT(
-              'leg_number', 3,
-              'marketing_carrier_code', CASE WHEN MOD(NUMBER_7 + 3, 5) IN (0, 1, 2, 3) THEN 'NZ' ELSE 'JQ' END,
-              'operating_carrier_code', CASE WHEN MOD(NUMBER_7 + 3, 7) < 5 THEN 'NZ' ELSE 'UA' END,
-              'flight_number', LPAD(TO_VARCHAR(100 + MOD(NUMBER_100 + 9, 900)), 4, '0'),
-              'departure_airport_code', CASE MOD(NUMBER_7 + 3, 8) WHEN 0 THEN 'AKL' WHEN 1 THEN 'WLG' WHEN 2 THEN 'CHC' WHEN 3 THEN 'ZQN' WHEN 4 THEN 'DUD' WHEN 5 THEN 'SYD' WHEN 6 THEN 'LAX' ELSE 'NRT' END,
-              'arrival_airport_code', CASE MOD(NUMBER_7 + 3 + 3, 8) WHEN 0 THEN 'AKL' WHEN 1 THEN 'WLG' WHEN 2 THEN 'CHC' WHEN 3 THEN 'ZQN' WHEN 4 THEN 'DUD' WHEN 5 THEN 'SYD' WHEN 6 THEN 'LAX' ELSE 'NRT' END,
-              'departure_country_code', CASE MOD(NUMBER_7 + 3, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END,
-              'arrival_country_code', CASE MOD(NUMBER_7 + 3 + 3, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END,
-              'route_type', CASE WHEN CASE MOD(NUMBER_7 + 3, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END = 'NZ' AND CASE MOD(NUMBER_7 + 3 + 3, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END = 'NZ' THEN 'Domestic' ELSE 'International' END,
-              'departure_scheduled_local', DATEADD('day', -NUMBER_365 + 3, CURRENT_DATE())::TIMESTAMP_NTZ,
-              'arrival_scheduled_local', DATEADD('hour', 2 + MOD(NUMBER_30 + 4, 6), DATEADD('day', -NUMBER_365 + 3, CURRENT_DATE())::TIMESTAMP_NTZ),
-              'cabin_class', CASE WHEN NUMBER_10 < 3 THEN 'Economy' WHEN NUMBER_10 < 6 THEN 'Premium Economy' WHEN NUMBER_10 < 8 THEN 'Business Premier' ELSE 'Economy Skycouch' END,
-              'airpoints_dollars_earned', CASE WHEN CASE MOD(NUMBER_7 + 3, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END = 'NZ' AND CASE MOD(NUMBER_7 + 3 + 3, 8) WHEN 0 THEN 'NZ' WHEN 1 THEN 'NZ' WHEN 2 THEN 'NZ' WHEN 3 THEN 'NZ' WHEN 4 THEN 'NZ' WHEN 5 THEN 'AU' WHEN 6 THEN 'US' ELSE 'JP' END = 'NZ' THEN 5 + MOD(NUMBER_30, 10) ELSE 25 + MOD(NUMBER_30, 50) END,
-              'status_points_earned', CASE WHEN CASE WHEN NUMBER_10 < 3 THEN 'Economy' WHEN NUMBER_10 < 6 THEN 'Premium Economy' WHEN NUMBER_10 < 8 THEN 'Business Premier' ELSE 'Economy Skycouch' END = 'Business Premier' THEN 90 WHEN CASE WHEN NUMBER_10 < 3 THEN 'Economy' WHEN NUMBER_10 < 6 THEN 'Premium Economy' WHEN NUMBER_10 < 8 THEN 'Business Premier' ELSE 'Economy Skycouch' END = 'Premium Economy' THEN 60 WHEN CASE WHEN NUMBER_10 < 3 THEN 'Economy' WHEN NUMBER_10 < 6 THEN 'Premium Economy' WHEN NUMBER_10 < 8 THEN 'Business Premier' ELSE 'Economy Skycouch' END = 'Economy Skycouch' THEN 45 ELSE 30 END,
-              'distance_miles', 500 + NUMBER_30 * 20,
-              'star_alliance_partner_flight', CASE WHEN MOD(NUMBER_7 + 3, 5) IN (0, 1, 2, 3) AND MOD(NUMBER_7 + 3, 7) >= 5 THEN TRUE ELSE FALSE END
-          )
-      ) AS flight_legs
-  FROM limited_events;
+      END AS loyalty_tier,
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 15 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 35 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 65 THEN 'Star Alliance Silver'
+          ELSE 'None'
+      END AS star_alliance_status,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS member_since_date,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date,
+      membership_status,
+      (NUMBER_100 * 1000) AS lifetime_airpoints_dollars,
+      (NUMBER_100 * 1000) - (NUMBER_30 * 50) AS current_airpoints_dollars_balance,
+      (NUMBER_30 * 100) AS status_points,
+      CASE
+          WHEN NUMBER_100 < 5 THEN 0
+          WHEN NUMBER_100 < 15 THEN (5 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 35 THEN (15 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 65 THEN (35 - NUMBER_100) * 100
+          ELSE (65 - NUMBER_100) * 100
+      END AS status_points_to_next_tier,
+      CASE WHEN BOOLEAN_87 THEN 'Koru' ELSE 'None' END AS lounge_access,
+      CASE WHEN NUMBER_10 < 3 THEN 'Yes' ELSE 'No' END AS star_alliance_benefits_included,
+      CASE WHEN BOOLEAN_52 THEN 'Yes' ELSE 'No' END AS family_pooling_eligible,
+      CASE WHEN BOOLEAN_34 THEN 'Yes' ELSE 'No' END AS marketing_opt_in_for_airpoints,
+      DATEADD('day', -1 * NUMBER_7, CURRENT_DATE()) AS last_activity_date,
+      CASE
+          WHEN membership_status = 'Suspended' THEN 'At Risk'
+          WHEN membership_status = 'Lapsed' THEN 'Churned'
+          WHEN (NUMBER_100 * 1000) >= 70000 THEN 'High Value Engaged'
+          WHEN (NUMBER_100 * 1000) >= 30000 THEN 'Mid Value Engaged'
+          ELSE 'Low Engagement'
+      END AS LOYALTY_ENGAGEMENT_SEGMENT
+  FROM with_status;
 primaryKey: BOOKING_ID
