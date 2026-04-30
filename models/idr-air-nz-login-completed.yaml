@@ -1,0 +1,115 @@
+name: IDR - AirNZ - Login Completed
+source: Snowflake-aaa71
+description: Login Completed Event Table
+type: raw_sql
+rawSql: |-
+  WITH all_customers AS (
+      -- Generate all customer_ids from parent model
+      SELECT 
+          user_id AS original_user_id,
+          user_id AS customer_id,
+          0 AS version
+      FROM 
+          public.users
+      
+      UNION ALL
+      
+      SELECT 
+          user_id AS original_user_id,
+          CONCAT(user_id, '-2') AS customer_id,
+          2 AS version
+      FROM 
+          public.users
+      
+      UNION ALL
+      
+      SELECT 
+          user_id AS original_user_id,
+          CONCAT(user_id, '-3') AS customer_id,
+          3 AS version
+      FROM 
+          public.users
+      
+      UNION ALL
+      
+      SELECT 
+          user_id AS original_user_id,
+          CONCAT(user_id, '-4') AS customer_id,
+          4 AS version
+      FROM 
+          public.users
+      
+      UNION ALL
+      
+      SELECT 
+          user_id AS original_user_id,
+          CONCAT(user_id, '-5') AS customer_id,
+          5 AS version
+      FROM 
+          public.users
+      
+      UNION ALL
+      
+      SELECT 
+          user_id AS original_user_id,
+          CONCAT(user_id, '-6') AS customer_id,
+          6 AS version
+      FROM 
+          public.users
+      
+      UNION ALL
+      
+      SELECT 
+          user_id AS original_user_id,
+          CONCAT(user_id, '-7') AS customer_id,
+          7 AS version
+      FROM 
+          public.users
+  ),
+  event_multiplier AS (
+      -- Create 2 events per customer
+      SELECT 
+          customer_id,
+          original_user_id,
+          version,
+          n
+      FROM 
+          all_customers
+      CROSS JOIN 
+          (SELECT 1 AS n UNION ALL SELECT 2) AS events
+  )
+  SELECT
+      CONCAT(original_user_id, '-login-', version, '-', n) AS event_id,
+      customer_id,
+      'Login Completed' AS event_type,
+      -- After Page View: add 2-5 minutes
+      DATEADD('minute', (2 + MOD(version + n, 4)),
+        DATEADD('hour', -1 * (version * 12 + n * 4 + 8), CURRENT_DATE())
+      ) AS event_timestamp,
+      CASE 
+          WHEN MOD(version + n, 7) = 1 THEN 'Homepage'
+          WHEN MOD(version + n, 7) = 2 THEN 'Booking Page'
+          WHEN MOD(version + n, 7) = 3 THEN 'Manage Booking'
+          WHEN MOD(version + n, 7) = 4 THEN 'Airpoints'
+          WHEN MOD(version + n, 7) = 5 THEN 'Mobile App'
+          ELSE 'Check-in Page'
+      END AS page_name,
+      CASE 
+          WHEN MOD(version, 4) = 0 THEN 'Email Campaign'
+          WHEN MOD(version, 4) = 1 THEN 'Social Media'
+          WHEN MOD(version, 4) = 2 THEN 'Organic Search'
+          ELSE 'Direct'
+      END AS traffic_source,
+      CASE
+          WHEN MOD(n, 2) = 0 THEN TRUE
+          ELSE FALSE
+      END AS is_mobile_app,
+      'www.airnewzealand.com' AS domain,
+      TRUE AS successful_login,
+      CASE 
+          WHEN MOD(version + n, 20) = 0 THEN 'Password Reset Required'
+          ELSE NULL
+      END AS login_error
+  FROM 
+      event_multiplier
+primaryKey: EVENT_ID
