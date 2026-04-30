@@ -3,6 +3,9 @@ source: Snowflake-aaa71
 description: Customers table
 type: raw_sql
 rawSql: |-
+  WITH limited_users AS (
+      SELECT * FROM public.users LIMIT 2143
+  )
   SELECT
       USER_ID AS customer_id,
       CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) AS VARCHAR), 8, '0')) AS airpoints_number,
@@ -68,7 +71,7 @@ rawSql: |-
       (NUMBER_1000 * 2)::NUMBER(12,2) AS "12_MONTH_CLV",
       (NUMBER_1000 * 3)::NUMBER(12,2) AS LIFETIME_CLV
   FROM 
-      public.users
+      limited_users
 
   UNION ALL
 
@@ -137,7 +140,7 @@ rawSql: |-
       (NUMBER_1000 * 2)::NUMBER(12,2) AS "12_MONTH_CLV",
       (NUMBER_1000 * 3)::NUMBER(12,2) AS LIFETIME_CLV
   FROM 
-      public.users
+      limited_users
 
   UNION ALL
 
@@ -206,7 +209,7 @@ rawSql: |-
       (NUMBER_1000 * 2)::NUMBER(12,2) AS "12_MONTH_CLV",
       (NUMBER_1000 * 3)::NUMBER(12,2) AS LIFETIME_CLV
   FROM 
-      public.users
+      limited_users
 
   UNION ALL
 
@@ -275,7 +278,7 @@ rawSql: |-
       (NUMBER_1000 * 2)::NUMBER(12,2) AS "12_MONTH_CLV",
       (NUMBER_1000 * 3)::NUMBER(12,2) AS LIFETIME_CLV
   FROM 
-      public.users
+      limited_users
 
   UNION ALL
 
@@ -344,7 +347,7 @@ rawSql: |-
       (NUMBER_1000 * 2)::NUMBER(12,2) AS "12_MONTH_CLV",
       (NUMBER_1000 * 3)::NUMBER(12,2) AS LIFETIME_CLV
   FROM 
-      public.users
+      limited_users
 
   UNION ALL
 
@@ -413,7 +416,7 @@ rawSql: |-
       (NUMBER_1000 * 2)::NUMBER(12,2) AS "12_MONTH_CLV",
       (NUMBER_1000 * 3)::NUMBER(12,2) AS LIFETIME_CLV
   FROM 
-      public.users
+      limited_users
 
   UNION ALL
 
@@ -482,5 +485,5 @@ rawSql: |-
       (NUMBER_1000 * 2)::NUMBER(12,2) AS "12_MONTH_CLV",
       (NUMBER_1000 * 3)::NUMBER(12,2) AS LIFETIME_CLV
   FROM 
-      public.users;
+      limited_users;
 primaryKey: CUSTOMER_ID
