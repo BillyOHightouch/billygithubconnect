@@ -1,0 +1,712 @@
+name: IDR - AirNZ - Loyalty
+source: Snowflake-aaa71
+description: Loyalty table
+type: raw_sql
+rawSql: |-
+  -- Airpoints Membership / Status (related model off Air NZ customers)
+  SELECT
+      -- Keys / linkage
+      USER_ID AS customer_id,
+
+      -- Airpoints number aligned with Air NZ parent pattern
+      CONCAT(
+          'NZ',
+          LPAD(
+              CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) AS VARCHAR),
+              8,
+              '0'
+          )
+      ) AS airpoints_number,
+
+      -- Core program info
+      'Airpoints' AS program_name,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
+          WHEN NUMBER_100 < 15 THEN 'Elite'
+          WHEN NUMBER_100 < 35 THEN 'Gold'
+          WHEN NUMBER_100 < 65 THEN 'Silver'
+          ELSE 'Koru'
+      END AS loyalty_tier,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 15 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 35 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 65 THEN 'Star Alliance Silver'
+          ELSE 'None'
+      END AS star_alliance_status,
+
+      -- Membership lifecycle
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS member_since_date,
+      DATEADD(
+          'day',
+          NUMBER_365,
+          DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())
+      ) AS tier_expiry_date,
+
+      CASE
+          WHEN BOOLEAN_34 THEN 'Active'
+          WHEN BOOLEAN_52 THEN 'Lapsed'
+          WHEN BOOLEAN_87 THEN 'Suspended'
+          ELSE 'Pending Activation'
+      END AS membership_status,
+
+      -- Airpoints Dollars & Status Points (derived only from NUMBER_* fields)
+      (NUMBER_100 * 1000) AS lifetime_airpoints_dollars,
+      (NUMBER_100 * 1000) - (NUMBER_30 * 50) AS current_airpoints_dollars_balance,
+      (NUMBER_30 * 100) AS status_points,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 0
+          WHEN NUMBER_100 < 15 THEN (5 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 35 THEN (15 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 65 THEN (35 - NUMBER_100) * 100
+          ELSE (65 - NUMBER_100) * 100
+      END AS status_points_to_next_tier,
+
+      -- Benefits & options
+      CASE
+          WHEN BOOLEAN_87 THEN 'Koru'
+          ELSE 'None'
+      END AS lounge_access,
+
+      CASE
+          WHEN NUMBER_10 < 3 THEN 'Yes'
+          ELSE 'No'
+      END AS star_alliance_benefits_included,
+
+      CASE
+          WHEN BOOLEAN_52 THEN 'Yes'
+          ELSE 'No'
+      END AS family_pooling_eligible,
+
+      CASE
+          WHEN BOOLEAN_34 THEN 'Yes'
+          ELSE 'No'
+      END AS marketing_opt_in_for_airpoints,
+
+      -- Activity / recency
+      DATEADD('day', -1 * NUMBER_7, CURRENT_DATE()) AS last_activity_date,
+
+      -- Loyalty engagement segment
+      CASE
+          WHEN CASE
+                   WHEN BOOLEAN_34 THEN 'Active'
+                   WHEN BOOLEAN_52 THEN 'Lapsed'
+                   WHEN BOOLEAN_87 THEN 'Suspended'
+                   ELSE 'Pending Activation'
+               END = 'Suspended' THEN 'At Risk'
+          WHEN CASE
+                   WHEN BOOLEAN_34 THEN 'Active'
+                   WHEN BOOLEAN_52 THEN 'Lapsed'
+                   WHEN BOOLEAN_87 THEN 'Suspended'
+                   ELSE 'Pending Activation'
+               END = 'Lapsed' THEN 'Churned'
+          WHEN (NUMBER_100 * 1000) >= 70000 THEN 'High Value Engaged'
+          WHEN (NUMBER_100 * 1000) >= 30000 THEN 'Mid Value Engaged'
+          ELSE 'Low Engagement'
+      END AS LOYALTY_ENGAGEMENT_SEGMENT
+
+  FROM public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-2') AS customer_id,
+
+      CONCAT(
+          'NZ',
+          LPAD(
+              CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 3000 AS VARCHAR),
+              8,
+              '0'
+          )
+      ) AS airpoints_number,
+
+      'Airpoints' AS program_name,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
+          WHEN NUMBER_100 < 15 THEN 'Elite'
+          WHEN NUMBER_100 < 35 THEN 'Gold'
+          WHEN NUMBER_100 < 65 THEN 'Silver'
+          ELSE 'Koru'
+      END AS loyalty_tier,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 15 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 35 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 65 THEN 'Star Alliance Silver'
+          ELSE 'None'
+      END AS star_alliance_status,
+
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS member_since_date,
+      DATEADD(
+          'day',
+          NUMBER_365,
+          DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())
+      ) AS tier_expiry_date,
+
+      CASE
+          WHEN BOOLEAN_34 THEN 'Active'
+          WHEN BOOLEAN_52 THEN 'Lapsed'
+          WHEN BOOLEAN_87 THEN 'Suspended'
+          ELSE 'Pending Activation'
+      END AS membership_status,
+
+      (NUMBER_100 * 1000) AS lifetime_airpoints_dollars,
+      (NUMBER_100 * 1000) - (NUMBER_30 * 50) AS current_airpoints_dollars_balance,
+      (NUMBER_30 * 100) AS status_points,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 0
+          WHEN NUMBER_100 < 15 THEN (5 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 35 THEN (15 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 65 THEN (35 - NUMBER_100) * 100
+          ELSE (65 - NUMBER_100) * 100
+      END AS status_points_to_next_tier,
+
+      CASE
+          WHEN BOOLEAN_87 THEN 'Koru'
+          ELSE 'None'
+      END AS lounge_access,
+
+      CASE
+          WHEN NUMBER_10 < 3 THEN 'Yes'
+          ELSE 'No'
+      END AS star_alliance_benefits_included,
+
+      CASE
+          WHEN BOOLEAN_52 THEN 'Yes'
+          ELSE 'No'
+      END AS family_pooling_eligible,
+
+      CASE
+          WHEN BOOLEAN_34 THEN 'Yes'
+          ELSE 'No'
+      END AS marketing_opt_in_for_airpoints,
+
+      DATEADD('day', -1 * NUMBER_7, CURRENT_DATE()) AS last_activity_date,
+
+      CASE
+          WHEN CASE
+                   WHEN BOOLEAN_34 THEN 'Active'
+                   WHEN BOOLEAN_52 THEN 'Lapsed'
+                   WHEN BOOLEAN_87 THEN 'Suspended'
+                   ELSE 'Pending Activation'
+               END = 'Suspended' THEN 'At Risk'
+          WHEN CASE
+                   WHEN BOOLEAN_34 THEN 'Active'
+                   WHEN BOOLEAN_52 THEN 'Lapsed'
+                   WHEN BOOLEAN_87 THEN 'Suspended'
+                   ELSE 'Pending Activation'
+               END = 'Lapsed' THEN 'Churned'
+          WHEN (NUMBER_100 * 1000) >= 70000 THEN 'High Value Engaged'
+          WHEN (NUMBER_100 * 1000) >= 30000 THEN 'Mid Value Engaged'
+          ELSE 'Low Engagement'
+      END AS LOYALTY_ENGAGEMENT_SEGMENT
+
+  FROM public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-3') AS customer_id,
+
+      CONCAT(
+          'NZ',
+          LPAD(
+              CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 6000 AS VARCHAR),
+              8,
+              '0'
+          )
+      ) AS airpoints_number,
+
+      'Airpoints' AS program_name,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
+          WHEN NUMBER_100 < 15 THEN 'Elite'
+          WHEN NUMBER_100 < 35 THEN 'Gold'
+          WHEN NUMBER_100 < 65 THEN 'Silver'
+          ELSE 'Koru'
+      END AS loyalty_tier,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 15 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 35 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 65 THEN 'Star Alliance Silver'
+          ELSE 'None'
+      END AS star_alliance_status,
+
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS member_since_date,
+      DATEADD(
+          'day',
+          NUMBER_365,
+          DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())
+      ) AS tier_expiry_date,
+
+      CASE
+          WHEN BOOLEAN_34 THEN 'Active'
+          WHEN BOOLEAN_52 THEN 'Lapsed'
+          WHEN BOOLEAN_87 THEN 'Suspended'
+          ELSE 'Pending Activation'
+      END AS membership_status,
+
+      (NUMBER_100 * 1000) AS lifetime_airpoints_dollars,
+      (NUMBER_100 * 1000) - (NUMBER_30 * 50) AS current_airpoints_dollars_balance,
+      (NUMBER_30 * 100) AS status_points,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 0
+          WHEN NUMBER_100 < 15 THEN (5 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 35 THEN (15 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 65 THEN (35 - NUMBER_100) * 100
+          ELSE (65 - NUMBER_100) * 100
+      END AS status_points_to_next_tier,
+
+      CASE
+          WHEN BOOLEAN_87 THEN 'Koru'
+          ELSE 'None'
+      END AS lounge_access,
+
+      CASE
+          WHEN NUMBER_10 < 3 THEN 'Yes'
+          ELSE 'No'
+      END AS star_alliance_benefits_included,
+
+      CASE
+          WHEN BOOLEAN_52 THEN 'Yes'
+          ELSE 'No'
+      END AS family_pooling_eligible,
+
+      CASE
+          WHEN BOOLEAN_34 THEN 'Yes'
+          ELSE 'No'
+      END AS marketing_opt_in_for_airpoints,
+
+      DATEADD('day', -1 * NUMBER_7, CURRENT_DATE()) AS last_activity_date,
+
+      CASE
+          WHEN CASE
+                   WHEN BOOLEAN_34 THEN 'Active'
+                   WHEN BOOLEAN_52 THEN 'Lapsed'
+                   WHEN BOOLEAN_87 THEN 'Suspended'
+                   ELSE 'Pending Activation'
+               END = 'Suspended' THEN 'At Risk'
+          WHEN CASE
+                   WHEN BOOLEAN_34 THEN 'Active'
+                   WHEN BOOLEAN_52 THEN 'Lapsed'
+                   WHEN BOOLEAN_87 THEN 'Suspended'
+                   ELSE 'Pending Activation'
+               END = 'Lapsed' THEN 'Churned'
+          WHEN (NUMBER_100 * 1000) >= 70000 THEN 'High Value Engaged'
+          WHEN (NUMBER_100 * 1000) >= 30000 THEN 'Mid Value Engaged'
+          ELSE 'Low Engagement'
+      END AS LOYALTY_ENGAGEMENT_SEGMENT
+
+  FROM public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-4') AS customer_id,
+
+      CONCAT(
+          'NZ',
+          LPAD(
+              CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 9000 AS VARCHAR),
+              8,
+              '0'
+          )
+      ) AS airpoints_number,
+
+      'Airpoints' AS program_name,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
+          WHEN NUMBER_100 < 15 THEN 'Elite'
+          WHEN NUMBER_100 < 35 THEN 'Gold'
+          WHEN NUMBER_100 < 65 THEN 'Silver'
+          ELSE 'Koru'
+      END AS loyalty_tier,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 15 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 35 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 65 THEN 'Star Alliance Silver'
+          ELSE 'None'
+      END AS star_alliance_status,
+
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS member_since_date,
+      DATEADD(
+          'day',
+          NUMBER_365,
+          DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())
+      ) AS tier_expiry_date,
+
+      CASE
+          WHEN BOOLEAN_34 THEN 'Active'
+          WHEN BOOLEAN_52 THEN 'Lapsed'
+          WHEN BOOLEAN_87 THEN 'Suspended'
+          ELSE 'Pending Activation'
+      END AS membership_status,
+
+      (NUMBER_100 * 1000) AS lifetime_airpoints_dollars,
+      (NUMBER_100 * 1000) - (NUMBER_30 * 50) AS current_airpoints_dollars_balance,
+      (NUMBER_30 * 100) AS status_points,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 0
+          WHEN NUMBER_100 < 15 THEN (5 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 35 THEN (15 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 65 THEN (35 - NUMBER_100) * 100
+          ELSE (65 - NUMBER_100) * 100
+      END AS status_points_to_next_tier,
+
+      CASE
+          WHEN BOOLEAN_87 THEN 'Koru'
+          ELSE 'None'
+      END AS lounge_access,
+
+      CASE
+          WHEN NUMBER_10 < 3 THEN 'Yes'
+          ELSE 'No'
+      END AS star_alliance_benefits_included,
+
+      CASE
+          WHEN BOOLEAN_52 THEN 'Yes'
+          ELSE 'No'
+      END AS family_pooling_eligible,
+
+      CASE
+          WHEN BOOLEAN_34 THEN 'Yes'
+          ELSE 'No'
+      END AS marketing_opt_in_for_airpoints,
+
+      DATEADD('day', -1 * NUMBER_7, CURRENT_DATE()) AS last_activity_date,
+
+      CASE
+          WHEN CASE
+                   WHEN BOOLEAN_34 THEN 'Active'
+                   WHEN BOOLEAN_52 THEN 'Lapsed'
+                   WHEN BOOLEAN_87 THEN 'Suspended'
+                   ELSE 'Pending Activation'
+               END = 'Suspended' THEN 'At Risk'
+          WHEN CASE
+                   WHEN BOOLEAN_34 THEN 'Active'
+                   WHEN BOOLEAN_52 THEN 'Lapsed'
+                   WHEN BOOLEAN_87 THEN 'Suspended'
+                   ELSE 'Pending Activation'
+               END = 'Lapsed' THEN 'Churned'
+          WHEN (NUMBER_100 * 1000) >= 70000 THEN 'High Value Engaged'
+          WHEN (NUMBER_100 * 1000) >= 30000 THEN 'Mid Value Engaged'
+          ELSE 'Low Engagement'
+      END AS LOYALTY_ENGAGEMENT_SEGMENT
+
+  FROM public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-5') AS customer_id,
+
+      CONCAT(
+          'NZ',
+          LPAD(
+              CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 12000 AS VARCHAR),
+              8,
+              '0'
+          )
+      ) AS airpoints_number,
+
+      'Airpoints' AS program_name,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
+          WHEN NUMBER_100 < 15 THEN 'Elite'
+          WHEN NUMBER_100 < 35 THEN 'Gold'
+          WHEN NUMBER_100 < 65 THEN 'Silver'
+          ELSE 'Koru'
+      END AS loyalty_tier,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 15 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 35 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 65 THEN 'Star Alliance Silver'
+          ELSE 'None'
+      END AS star_alliance_status,
+
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS member_since_date,
+      DATEADD(
+          'day',
+          NUMBER_365,
+          DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())
+      ) AS tier_expiry_date,
+
+      CASE
+          WHEN BOOLEAN_34 THEN 'Active'
+          WHEN BOOLEAN_52 THEN 'Lapsed'
+          WHEN BOOLEAN_87 THEN 'Suspended'
+          ELSE 'Pending Activation'
+      END AS membership_status,
+
+      (NUMBER_100 * 1000) AS lifetime_airpoints_dollars,
+      (NUMBER_100 * 1000) - (NUMBER_30 * 50) AS current_airpoints_dollars_balance,
+      (NUMBER_30 * 100) AS status_points,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 0
+          WHEN NUMBER_100 < 15 THEN (5 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 35 THEN (15 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 65 THEN (35 - NUMBER_100) * 100
+          ELSE (65 - NUMBER_100) * 100
+      END AS status_points_to_next_tier,
+
+      CASE
+          WHEN BOOLEAN_87 THEN 'Koru'
+          ELSE 'None'
+      END AS lounge_access,
+
+      CASE
+          WHEN NUMBER_10 < 3 THEN 'Yes'
+          ELSE 'No'
+      END AS star_alliance_benefits_included,
+
+      CASE
+          WHEN BOOLEAN_52 THEN 'Yes'
+          ELSE 'No'
+      END AS family_pooling_eligible,
+
+      CASE
+          WHEN BOOLEAN_34 THEN 'Yes'
+          ELSE 'No'
+      END AS marketing_opt_in_for_airpoints,
+
+      DATEADD('day', -1 * NUMBER_7, CURRENT_DATE()) AS last_activity_date,
+
+      CASE
+          WHEN CASE
+                   WHEN BOOLEAN_34 THEN 'Active'
+                   WHEN BOOLEAN_52 THEN 'Lapsed'
+                   WHEN BOOLEAN_87 THEN 'Suspended'
+                   ELSE 'Pending Activation'
+               END = 'Suspended' THEN 'At Risk'
+          WHEN CASE
+                   WHEN BOOLEAN_34 THEN 'Active'
+                   WHEN BOOLEAN_52 THEN 'Lapsed'
+                   WHEN BOOLEAN_87 THEN 'Suspended'
+                   ELSE 'Pending Activation'
+               END = 'Lapsed' THEN 'Churned'
+          WHEN (NUMBER_100 * 1000) >= 70000 THEN 'High Value Engaged'
+          WHEN (NUMBER_100 * 1000) >= 30000 THEN 'Mid Value Engaged'
+          ELSE 'Low Engagement'
+      END AS LOYALTY_ENGAGEMENT_SEGMENT
+
+  FROM public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-6') AS customer_id,
+
+      CONCAT(
+          'NZ',
+          LPAD(
+              CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 15000 AS VARCHAR),
+              8,
+              '0'
+          )
+      ) AS airpoints_number,
+
+      'Airpoints' AS program_name,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
+          WHEN NUMBER_100 < 15 THEN 'Elite'
+          WHEN NUMBER_100 < 35 THEN 'Gold'
+          WHEN NUMBER_100 < 65 THEN 'Silver'
+          ELSE 'Koru'
+      END AS loyalty_tier,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 15 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 35 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 65 THEN 'Star Alliance Silver'
+          ELSE 'None'
+      END AS star_alliance_status,
+
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS member_since_date,
+      DATEADD(
+          'day',
+          NUMBER_365,
+          DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())
+      ) AS tier_expiry_date,
+
+      CASE
+          WHEN BOOLEAN_34 THEN 'Active'
+          WHEN BOOLEAN_52 THEN 'Lapsed'
+          WHEN BOOLEAN_87 THEN 'Suspended'
+          ELSE 'Pending Activation'
+      END AS membership_status,
+
+      (NUMBER_100 * 1000) AS lifetime_airpoints_dollars,
+      (NUMBER_100 * 1000) - (NUMBER_30 * 50) AS current_airpoints_dollars_balance,
+      (NUMBER_30 * 100) AS status_points,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 0
+          WHEN NUMBER_100 < 15 THEN (5 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 35 THEN (15 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 65 THEN (35 - NUMBER_100) * 100
+          ELSE (65 - NUMBER_100) * 100
+      END AS status_points_to_next_tier,
+
+      CASE
+          WHEN BOOLEAN_87 THEN 'Koru'
+          ELSE 'None'
+      END AS lounge_access,
+
+      CASE
+          WHEN NUMBER_10 < 3 THEN 'Yes'
+          ELSE 'No'
+      END AS star_alliance_benefits_included,
+
+      CASE
+          WHEN BOOLEAN_52 THEN 'Yes'
+          ELSE 'No'
+      END AS family_pooling_eligible,
+
+      CASE
+          WHEN BOOLEAN_34 THEN 'Yes'
+          ELSE 'No'
+      END AS marketing_opt_in_for_airpoints,
+
+      DATEADD('day', -1 * NUMBER_7, CURRENT_DATE()) AS last_activity_date,
+
+      CASE
+          WHEN CASE
+                   WHEN BOOLEAN_34 THEN 'Active'
+                   WHEN BOOLEAN_52 THEN 'Lapsed'
+                   WHEN BOOLEAN_87 THEN 'Suspended'
+                   ELSE 'Pending Activation'
+               END = 'Suspended' THEN 'At Risk'
+          WHEN CASE
+                   WHEN BOOLEAN_34 THEN 'Active'
+                   WHEN BOOLEAN_52 THEN 'Lapsed'
+                   WHEN BOOLEAN_87 THEN 'Suspended'
+                   ELSE 'Pending Activation'
+               END = 'Lapsed' THEN 'Churned'
+          WHEN (NUMBER_100 * 1000) >= 70000 THEN 'High Value Engaged'
+          WHEN (NUMBER_100 * 1000) >= 30000 THEN 'Mid Value Engaged'
+          ELSE 'Low Engagement'
+      END AS LOYALTY_ENGAGEMENT_SEGMENT
+
+  FROM public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-7') AS customer_id,
+
+      CONCAT(
+          'NZ',
+          LPAD(
+              CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 18000 AS VARCHAR),
+              8,
+              '0'
+          )
+      ) AS airpoints_number,
+
+      'Airpoints' AS program_name,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
+          WHEN NUMBER_100 < 15 THEN 'Elite'
+          WHEN NUMBER_100 < 35 THEN 'Gold'
+          WHEN NUMBER_100 < 65 THEN 'Silver'
+          ELSE 'Koru'
+      END AS loyalty_tier,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 15 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 35 THEN 'Star Alliance Gold'
+          WHEN NUMBER_100 < 65 THEN 'Star Alliance Silver'
+          ELSE 'None'
+      END AS star_alliance_status,
+
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS member_since_date,
+      DATEADD(
+          'day',
+          NUMBER_365,
+          DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())
+      ) AS tier_expiry_date,
+
+      CASE
+          WHEN BOOLEAN_34 THEN 'Active'
+          WHEN BOOLEAN_52 THEN 'Lapsed'
+          WHEN BOOLEAN_87 THEN 'Suspended'
+          ELSE 'Pending Activation'
+      END AS membership_status,
+
+      (NUMBER_100 * 1000) AS lifetime_airpoints_dollars,
+      (NUMBER_100 * 1000) - (NUMBER_30 * 50) AS current_airpoints_dollars_balance,
+      (NUMBER_30 * 100) AS status_points,
+
+      CASE
+          WHEN NUMBER_100 < 5 THEN 0
+          WHEN NUMBER_100 < 15 THEN (5 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 35 THEN (15 - NUMBER_100) * 100
+          WHEN NUMBER_100 < 65 THEN (35 - NUMBER_100) * 100
+          ELSE (65 - NUMBER_100) * 100
+      END AS status_points_to_next_tier,
+
+      CASE
+          WHEN BOOLEAN_87 THEN 'Koru'
+          ELSE 'None'
+      END AS lounge_access,
+
+      CASE
+          WHEN NUMBER_10 < 3 THEN 'Yes'
+          ELSE 'No'
+      END AS star_alliance_benefits_included,
+
+      CASE
+          WHEN BOOLEAN_52 THEN 'Yes'
+          ELSE 'No'
+      END AS family_pooling_eligible,
+
+      CASE
+          WHEN BOOLEAN_34 THEN 'Yes'
+          ELSE 'No'
+      END AS marketing_opt_in_for_airpoints,
+
+      DATEADD('day', -1 * NUMBER_7, CURRENT_DATE()) AS last_activity_date,
+
+      CASE
+          WHEN CASE
+                   WHEN BOOLEAN_34 THEN 'Active'
+                   WHEN BOOLEAN_52 THEN 'Lapsed'
+                   WHEN BOOLEAN_87 THEN 'Suspended'
+                   ELSE 'Pending Activation'
+               END = 'Suspended' THEN 'At Risk'
+          WHEN CASE
+                   WHEN BOOLEAN_34 THEN 'Active'
+                   WHEN BOOLEAN_52 THEN 'Lapsed'
+                   WHEN BOOLEAN_87 THEN 'Suspended'
+                   ELSE 'Pending Activation'
+               END = 'Lapsed' THEN 'Churned'
+          WHEN (NUMBER_100 * 1000) >= 70000 THEN 'High Value Engaged'
+          WHEN (NUMBER_100 * 1000) >= 30000 THEN 'Mid Value Engaged'
+          ELSE 'Low Engagement'
+      END AS LOYALTY_ENGAGEMENT_SEGMENT
+
+  FROM public.users;
+primaryKey: CUSTOMER_ID
