@@ -1,0 +1,486 @@
+name: IDR - AirNZ - Customers
+source: Snowflake-aaa71
+description: Customers table
+type: raw_sql
+rawSql: |-
+  SELECT
+      USER_ID AS customer_id,
+      CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) AS VARCHAR), 8, '0')) AS airpoints_number,
+      FIRST_NAME AS first_name,
+      LAST_NAME AS last_name,
+      EMAIL AS email,
+      NUMBER_30 AS age,
+      DATEADD('day', -1 * NUMBER_365 * NUMBER_30, CURRENT_DATE()) AS DOB,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS date_joined,
+      GENDER AS gender,
+      CASE 
+          WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
+          WHEN NUMBER_100 < 15 THEN 'Elite'
+          WHEN NUMBER_100 < 35 THEN 'Gold'
+          WHEN NUMBER_100 < 65 THEN 'Silver'
+          ELSE 'Koru'
+      END AS loyalty_tier,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Business Premier'
+          WHEN NUMBER_10 = 2 THEN 'Premium Economy'
+          WHEN NUMBER_10 = 3 THEN 'Economy'
+          ELSE 'Economy Skycouch'
+      END AS preferred_cabin,
+      BOOLEAN_34 AS marketing_opt_in,
+      BOOLEAN_52 AS email_preferences,
+      IP_ADDRESS AS last_login_ip,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'New Zealand'
+          WHEN NUMBER_7 = 2 THEN 'Australia'
+          WHEN NUMBER_7 = 3 THEN 'United States'
+          WHEN NUMBER_7 = 4 THEN 'United Kingdom'
+          WHEN NUMBER_7 = 5 THEN 'Singapore'
+          WHEN NUMBER_7 = 6 THEN 'Japan'
+          ELSE 'China'
+      END AS country_of_residence,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'AKL'
+          WHEN NUMBER_7 = 2 THEN 'WLG'
+          WHEN NUMBER_7 = 3 THEN 'CHC'
+          WHEN NUMBER_7 = 4 THEN 'SYD'
+          WHEN NUMBER_7 = 5 THEN 'LAX'
+          WHEN NUMBER_7 = 6 THEN 'LHR'
+          ELSE 'NRT'
+      END AS home_airport,
+      CAST(NUMBER_100 * 1000 AS VARCHAR) AS lifetime_airpoints_dollars,
+      NUMBER_30 * 100 AS status_points,
+      CASE 
+          WHEN BOOLEAN_87 THEN 'Koru'
+          ELSE 'None'
+      END AS lounge_access,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'ANZ Airpoints Visa Platinum'
+          WHEN NUMBER_10 = 2 THEN 'American Express Airpoints Platinum'
+          WHEN NUMBER_10 = 3 THEN 'ANZ Airpoints Visa'
+          WHEN NUMBER_10 = 4 THEN 'American Express Airpoints'
+          ELSE 'None'
+      END AS linked_credit_card,
+      CASE
+          WHEN NUMBER_10 < 3 THEN TRUE
+          ELSE FALSE 
+      END AS star_alliance_benefits,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date,
+      (NUMBER_1000 * 2)::NUMBER(12,2) AS "12_MONTH_CLV",
+      (NUMBER_1000 * 3)::NUMBER(12,2) AS LIFETIME_CLV
+  FROM 
+      public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-2') AS customer_id,
+      CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 3000 AS VARCHAR), 8, '0')) AS airpoints_number,
+      FIRST_NAME AS first_name,
+      LAST_NAME AS last_name,
+      CONCAT('2-', EMAIL) AS email,
+      NUMBER_30 AS age,
+      DATEADD('day', -1 * NUMBER_365 * NUMBER_30, CURRENT_DATE()) AS DOB,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS date_joined,
+      GENDER AS gender,
+      CASE 
+          WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
+          WHEN NUMBER_100 < 15 THEN 'Elite'
+          WHEN NUMBER_100 < 35 THEN 'Gold'
+          WHEN NUMBER_100 < 65 THEN 'Silver'
+          ELSE 'Koru'
+      END AS loyalty_tier,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Business Premier'
+          WHEN NUMBER_10 = 2 THEN 'Premium Economy'
+          WHEN NUMBER_10 = 3 THEN 'Economy'
+          ELSE 'Economy Skycouch'
+      END AS preferred_cabin,
+      BOOLEAN_34 AS marketing_opt_in,
+      BOOLEAN_52 AS email_preferences,
+      IP_ADDRESS AS last_login_ip,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'New Zealand'
+          WHEN NUMBER_7 = 2 THEN 'Australia'
+          WHEN NUMBER_7 = 3 THEN 'United States'
+          WHEN NUMBER_7 = 4 THEN 'United Kingdom'
+          WHEN NUMBER_7 = 5 THEN 'Singapore'
+          WHEN NUMBER_7 = 6 THEN 'Japan'
+          ELSE 'China'
+      END AS country_of_residence,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'AKL'
+          WHEN NUMBER_7 = 2 THEN 'WLG'
+          WHEN NUMBER_7 = 3 THEN 'CHC'
+          WHEN NUMBER_7 = 4 THEN 'SYD'
+          WHEN NUMBER_7 = 5 THEN 'LAX'
+          WHEN NUMBER_7 = 6 THEN 'LHR'
+          ELSE 'NRT'
+      END AS home_airport,
+      CAST(NUMBER_100 * 1000 AS VARCHAR) AS lifetime_airpoints_dollars,
+      NUMBER_30 * 100 AS status_points,
+      CASE 
+          WHEN BOOLEAN_87 THEN 'Koru'
+          ELSE 'None'
+      END AS lounge_access,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'ANZ Airpoints Visa Platinum'
+          WHEN NUMBER_10 = 2 THEN 'American Express Airpoints Platinum'
+          WHEN NUMBER_10 = 3 THEN 'ANZ Airpoints Visa'
+          WHEN NUMBER_10 = 4 THEN 'American Express Airpoints'
+          ELSE 'None'
+      END AS linked_credit_card,
+      CASE
+          WHEN NUMBER_10 < 3 THEN TRUE
+          ELSE FALSE 
+      END AS star_alliance_benefits,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date,
+      (NUMBER_1000 * 2)::NUMBER(12,2) AS "12_MONTH_CLV",
+      (NUMBER_1000 * 3)::NUMBER(12,2) AS LIFETIME_CLV
+  FROM 
+      public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-3') AS customer_id,
+      CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 6000 AS VARCHAR), 8, '0')) AS airpoints_number,
+      FIRST_NAME AS first_name,
+      LAST_NAME AS last_name,
+      CONCAT('3-', EMAIL) AS email,
+      NUMBER_30 AS age,
+      DATEADD('day', -1 * NUMBER_365 * NUMBER_30, CURRENT_DATE()) AS DOB,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS date_joined,
+      GENDER AS gender,
+      CASE 
+          WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
+          WHEN NUMBER_100 < 15 THEN 'Elite'
+          WHEN NUMBER_100 < 35 THEN 'Gold'
+          WHEN NUMBER_100 < 65 THEN 'Silver'
+          ELSE 'Koru'
+      END AS loyalty_tier,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Business Premier'
+          WHEN NUMBER_10 = 2 THEN 'Premium Economy'
+          WHEN NUMBER_10 = 3 THEN 'Economy'
+          ELSE 'Economy Skycouch'
+      END AS preferred_cabin,
+      BOOLEAN_34 AS marketing_opt_in,
+      BOOLEAN_52 AS email_preferences,
+      IP_ADDRESS AS last_login_ip,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'New Zealand'
+          WHEN NUMBER_7 = 2 THEN 'Australia'
+          WHEN NUMBER_7 = 3 THEN 'United States'
+          WHEN NUMBER_7 = 4 THEN 'United Kingdom'
+          WHEN NUMBER_7 = 5 THEN 'Singapore'
+          WHEN NUMBER_7 = 6 THEN 'Japan'
+          ELSE 'China'
+      END AS country_of_residence,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'AKL'
+          WHEN NUMBER_7 = 2 THEN 'WLG'
+          WHEN NUMBER_7 = 3 THEN 'CHC'
+          WHEN NUMBER_7 = 4 THEN 'SYD'
+          WHEN NUMBER_7 = 5 THEN 'LAX'
+          WHEN NUMBER_7 = 6 THEN 'LHR'
+          ELSE 'NRT'
+      END AS home_airport,
+      CAST(NUMBER_100 * 1000 AS VARCHAR) AS lifetime_airpoints_dollars,
+      NUMBER_30 * 100 AS status_points,
+      CASE 
+          WHEN BOOLEAN_87 THEN 'Koru'
+          ELSE 'None'
+      END AS lounge_access,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'ANZ Airpoints Visa Platinum'
+          WHEN NUMBER_10 = 2 THEN 'American Express Airpoints Platinum'
+          WHEN NUMBER_10 = 3 THEN 'ANZ Airpoints Visa'
+          WHEN NUMBER_10 = 4 THEN 'American Express Airpoints'
+          ELSE 'None'
+      END AS linked_credit_card,
+      CASE
+          WHEN NUMBER_10 < 3 THEN TRUE
+          ELSE FALSE 
+      END AS star_alliance_benefits,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date,
+      (NUMBER_1000 * 2)::NUMBER(12,2) AS "12_MONTH_CLV",
+      (NUMBER_1000 * 3)::NUMBER(12,2) AS LIFETIME_CLV
+  FROM 
+      public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-4') AS customer_id,
+      CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 9000 AS VARCHAR), 8, '0')) AS airpoints_number,
+      FIRST_NAME AS first_name,
+      LAST_NAME AS last_name,
+      CONCAT('4-', EMAIL) AS email,
+      NUMBER_30 AS age,
+      DATEADD('day', -1 * NUMBER_365 * NUMBER_30, CURRENT_DATE()) AS DOB,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS date_joined,
+      GENDER AS gender,
+      CASE 
+          WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
+          WHEN NUMBER_100 < 15 THEN 'Elite'
+          WHEN NUMBER_100 < 35 THEN 'Gold'
+          WHEN NUMBER_100 < 65 THEN 'Silver'
+          ELSE 'Koru'
+      END AS loyalty_tier,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Business Premier'
+          WHEN NUMBER_10 = 2 THEN 'Premium Economy'
+          WHEN NUMBER_10 = 3 THEN 'Economy'
+          ELSE 'Economy Skycouch'
+      END AS preferred_cabin,
+      BOOLEAN_34 AS marketing_opt_in,
+      BOOLEAN_52 AS email_preferences,
+      IP_ADDRESS AS last_login_ip,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'New Zealand'
+          WHEN NUMBER_7 = 2 THEN 'Australia'
+          WHEN NUMBER_7 = 3 THEN 'United States'
+          WHEN NUMBER_7 = 4 THEN 'United Kingdom'
+          WHEN NUMBER_7 = 5 THEN 'Singapore'
+          WHEN NUMBER_7 = 6 THEN 'Japan'
+          ELSE 'China'
+      END AS country_of_residence,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'AKL'
+          WHEN NUMBER_7 = 2 THEN 'WLG'
+          WHEN NUMBER_7 = 3 THEN 'CHC'
+          WHEN NUMBER_7 = 4 THEN 'SYD'
+          WHEN NUMBER_7 = 5 THEN 'LAX'
+          WHEN NUMBER_7 = 6 THEN 'LHR'
+          ELSE 'NRT'
+      END AS home_airport,
+      CAST(NUMBER_100 * 1000 AS VARCHAR) AS lifetime_airpoints_dollars,
+      NUMBER_30 * 100 AS status_points,
+      CASE 
+          WHEN BOOLEAN_87 THEN 'Koru'
+          ELSE 'None'
+      END AS lounge_access,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'ANZ Airpoints Visa Platinum'
+          WHEN NUMBER_10 = 2 THEN 'American Express Airpoints Platinum'
+          WHEN NUMBER_10 = 3 THEN 'ANZ Airpoints Visa'
+          WHEN NUMBER_10 = 4 THEN 'American Express Airpoints'
+          ELSE 'None'
+      END AS linked_credit_card,
+      CASE
+          WHEN NUMBER_10 < 3 THEN TRUE
+          ELSE FALSE 
+      END AS star_alliance_benefits,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date,
+      (NUMBER_1000 * 2)::NUMBER(12,2) AS "12_MONTH_CLV",
+      (NUMBER_1000 * 3)::NUMBER(12,2) AS LIFETIME_CLV
+  FROM 
+      public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-5') AS customer_id,
+      CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 12000 AS VARCHAR), 8, '0')) AS airpoints_number,
+      FIRST_NAME AS first_name,
+      LAST_NAME AS last_name,
+      CONCAT('5-', EMAIL) AS email,
+      NUMBER_30 AS age,
+      DATEADD('day', -1 * NUMBER_365 * NUMBER_30, CURRENT_DATE()) AS DOB,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS date_joined,
+      GENDER AS gender,
+      CASE 
+          WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
+          WHEN NUMBER_100 < 15 THEN 'Elite'
+          WHEN NUMBER_100 < 35 THEN 'Gold'
+          WHEN NUMBER_100 < 65 THEN 'Silver'
+          ELSE 'Koru'
+      END AS loyalty_tier,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Business Premier'
+          WHEN NUMBER_10 = 2 THEN 'Premium Economy'
+          WHEN NUMBER_10 = 3 THEN 'Economy'
+          ELSE 'Economy Skycouch'
+      END AS preferred_cabin,
+      BOOLEAN_34 AS marketing_opt_in,
+      BOOLEAN_52 AS email_preferences,
+      IP_ADDRESS AS last_login_ip,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'New Zealand'
+          WHEN NUMBER_7 = 2 THEN 'Australia'
+          WHEN NUMBER_7 = 3 THEN 'United States'
+          WHEN NUMBER_7 = 4 THEN 'United Kingdom'
+          WHEN NUMBER_7 = 5 THEN 'Singapore'
+          WHEN NUMBER_7 = 6 THEN 'Japan'
+          ELSE 'China'
+      END AS country_of_residence,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'AKL'
+          WHEN NUMBER_7 = 2 THEN 'WLG'
+          WHEN NUMBER_7 = 3 THEN 'CHC'
+          WHEN NUMBER_7 = 4 THEN 'SYD'
+          WHEN NUMBER_7 = 5 THEN 'LAX'
+          WHEN NUMBER_7 = 6 THEN 'LHR'
+          ELSE 'NRT'
+      END AS home_airport,
+      CAST(NUMBER_100 * 1000 AS VARCHAR) AS lifetime_airpoints_dollars,
+      NUMBER_30 * 100 AS status_points,
+      CASE 
+          WHEN BOOLEAN_87 THEN 'Koru'
+          ELSE 'None'
+      END AS lounge_access,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'ANZ Airpoints Visa Platinum'
+          WHEN NUMBER_10 = 2 THEN 'American Express Airpoints Platinum'
+          WHEN NUMBER_10 = 3 THEN 'ANZ Airpoints Visa'
+          WHEN NUMBER_10 = 4 THEN 'American Express Airpoints'
+          ELSE 'None'
+      END AS linked_credit_card,
+      CASE
+          WHEN NUMBER_10 < 3 THEN TRUE
+          ELSE FALSE 
+      END AS star_alliance_benefits,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date,
+      (NUMBER_1000 * 2)::NUMBER(12,2) AS "12_MONTH_CLV",
+      (NUMBER_1000 * 3)::NUMBER(12,2) AS LIFETIME_CLV
+  FROM 
+      public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-6') AS customer_id,
+      CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 15000 AS VARCHAR), 8, '0')) AS airpoints_number,
+      FIRST_NAME AS first_name,
+      LAST_NAME AS last_name,
+      CONCAT('6-', EMAIL) AS email,
+      NUMBER_30 AS age,
+      DATEADD('day', -1 * NUMBER_365 * NUMBER_30, CURRENT_DATE()) AS DOB,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS date_joined,
+      GENDER AS gender,
+      CASE 
+          WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
+          WHEN NUMBER_100 < 15 THEN 'Elite'
+          WHEN NUMBER_100 < 35 THEN 'Gold'
+          WHEN NUMBER_100 < 65 THEN 'Silver'
+          ELSE 'Koru'
+      END AS loyalty_tier,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Business Premier'
+          WHEN NUMBER_10 = 2 THEN 'Premium Economy'
+          WHEN NUMBER_10 = 3 THEN 'Economy'
+          ELSE 'Economy Skycouch'
+      END AS preferred_cabin,
+      BOOLEAN_34 AS marketing_opt_in,
+      BOOLEAN_52 AS email_preferences,
+      IP_ADDRESS AS last_login_ip,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'New Zealand'
+          WHEN NUMBER_7 = 2 THEN 'Australia'
+          WHEN NUMBER_7 = 3 THEN 'United States'
+          WHEN NUMBER_7 = 4 THEN 'United Kingdom'
+          WHEN NUMBER_7 = 5 THEN 'Singapore'
+          WHEN NUMBER_7 = 6 THEN 'Japan'
+          ELSE 'China'
+      END AS country_of_residence,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'AKL'
+          WHEN NUMBER_7 = 2 THEN 'WLG'
+          WHEN NUMBER_7 = 3 THEN 'CHC'
+          WHEN NUMBER_7 = 4 THEN 'SYD'
+          WHEN NUMBER_7 = 5 THEN 'LAX'
+          WHEN NUMBER_7 = 6 THEN 'LHR'
+          ELSE 'NRT'
+      END AS home_airport,
+      CAST(NUMBER_100 * 1000 AS VARCHAR) AS lifetime_airpoints_dollars,
+      NUMBER_30 * 100 AS status_points,
+      CASE 
+          WHEN BOOLEAN_87 THEN 'Koru'
+          ELSE 'None'
+      END AS lounge_access,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'ANZ Airpoints Visa Platinum'
+          WHEN NUMBER_10 = 2 THEN 'American Express Airpoints Platinum'
+          WHEN NUMBER_10 = 3 THEN 'ANZ Airpoints Visa'
+          WHEN NUMBER_10 = 4 THEN 'American Express Airpoints'
+          ELSE 'None'
+      END AS linked_credit_card,
+      CASE
+          WHEN NUMBER_10 < 3 THEN TRUE
+          ELSE FALSE 
+      END AS star_alliance_benefits,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date,
+      (NUMBER_1000 * 2)::NUMBER(12,2) AS "12_MONTH_CLV",
+      (NUMBER_1000 * 3)::NUMBER(12,2) AS LIFETIME_CLV
+  FROM 
+      public.users
+
+  UNION ALL
+
+  SELECT
+      CONCAT(USER_ID, '-7') AS customer_id,
+      CONCAT('NZ', LPAD(CAST(ROW_NUMBER() OVER (ORDER BY USER_ID) + 18000 AS VARCHAR), 8, '0')) AS airpoints_number,
+      FIRST_NAME AS first_name,
+      LAST_NAME AS last_name,
+      CONCAT('7-', EMAIL) AS email,
+      NUMBER_30 AS age,
+      DATEADD('day', -1 * NUMBER_365 * NUMBER_30, CURRENT_DATE()) AS DOB,
+      DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE()) AS date_joined,
+      GENDER AS gender,
+      CASE 
+          WHEN NUMBER_100 < 5 THEN 'Elite Priority One'
+          WHEN NUMBER_100 < 15 THEN 'Elite'
+          WHEN NUMBER_100 < 35 THEN 'Gold'
+          WHEN NUMBER_100 < 65 THEN 'Silver'
+          ELSE 'Koru'
+      END AS loyalty_tier,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'Business Premier'
+          WHEN NUMBER_10 = 2 THEN 'Premium Economy'
+          WHEN NUMBER_10 = 3 THEN 'Economy'
+          ELSE 'Economy Skycouch'
+      END AS preferred_cabin,
+      BOOLEAN_34 AS marketing_opt_in,
+      BOOLEAN_52 AS email_preferences,
+      IP_ADDRESS AS last_login_ip,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'New Zealand'
+          WHEN NUMBER_7 = 2 THEN 'Australia'
+          WHEN NUMBER_7 = 3 THEN 'United States'
+          WHEN NUMBER_7 = 4 THEN 'United Kingdom'
+          WHEN NUMBER_7 = 5 THEN 'Singapore'
+          WHEN NUMBER_7 = 6 THEN 'Japan'
+          ELSE 'China'
+      END AS country_of_residence,
+      CASE 
+          WHEN NUMBER_7 = 1 THEN 'AKL'
+          WHEN NUMBER_7 = 2 THEN 'WLG'
+          WHEN NUMBER_7 = 3 THEN 'CHC'
+          WHEN NUMBER_7 = 4 THEN 'SYD'
+          WHEN NUMBER_7 = 5 THEN 'LAX'
+          WHEN NUMBER_7 = 6 THEN 'LHR'
+          ELSE 'NRT'
+      END AS home_airport,
+      CAST(NUMBER_100 * 1000 AS VARCHAR) AS lifetime_airpoints_dollars,
+      NUMBER_30 * 100 AS status_points,
+      CASE 
+          WHEN BOOLEAN_87 THEN 'Koru'
+          ELSE 'None'
+      END AS lounge_access,
+      CASE 
+          WHEN NUMBER_10 = 1 THEN 'ANZ Airpoints Visa Platinum'
+          WHEN NUMBER_10 = 2 THEN 'American Express Airpoints Platinum'
+          WHEN NUMBER_10 = 3 THEN 'ANZ Airpoints Visa'
+          WHEN NUMBER_10 = 4 THEN 'American Express Airpoints'
+          ELSE 'None'
+      END AS linked_credit_card,
+      CASE
+          WHEN NUMBER_10 < 3 THEN TRUE
+          ELSE FALSE 
+      END AS star_alliance_benefits,
+      DATEADD('day', NUMBER_365, DATEADD('day', -1 * NUMBER_1000, CURRENT_DATE())) AS tier_expiry_date,
+      (NUMBER_1000 * 2)::NUMBER(12,2) AS "12_MONTH_CLV",
+      (NUMBER_1000 * 3)::NUMBER(12,2) AS LIFETIME_CLV
+  FROM 
+      public.users;
+primaryKey: CUSTOMER_ID
