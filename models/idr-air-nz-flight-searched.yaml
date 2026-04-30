@@ -1,0 +1,68 @@
+name: IDR - AirNZ - Flight Searched
+source: Snowflake-aaa71
+description: Flight Searched Event Table
+type: raw_sql
+rawSql: |-
+  WITH limited_users AS (
+      SELECT * FROM public.users LIMIT 1072
+  ),
+  all_customers AS (
+      SELECT user_id AS original_user_id, user_id AS customer_id, 0 AS version FROM limited_users
+      UNION ALL SELECT user_id, CONCAT(user_id, '-2'), 2 FROM limited_users
+      UNION ALL SELECT user_id, CONCAT(user_id, '-3'), 3 FROM limited_users
+      UNION ALL SELECT user_id, CONCAT(user_id, '-4'), 4 FROM limited_users
+      UNION ALL SELECT user_id, CONCAT(user_id, '-5'), 5 FROM limited_users
+      UNION ALL SELECT user_id, CONCAT(user_id, '-6'), 6 FROM limited_users
+      UNION ALL SELECT user_id, CONCAT(user_id, '-7'), 7 FROM limited_users
+  ),
+  event_multiplier AS (
+      SELECT customer_id, original_user_id, version, n
+      FROM all_customers
+      CROSS JOIN (SELECT 1 AS n UNION ALL SELECT 2) AS events
+  )
+  SELECT
+      CONCAT(original_user_id, '-flight-search-', version, '-', n) AS event_id,
+      customer_id,
+      'Flight Searched' AS event_type,
+      DATEADD('minute', (3 + MOD(version + n, 5)),
+        DATEADD('minute', (2 + MOD(version + n, 4)),
+          DATEADD('hour', -1 * (version * 12 + n * 4 + 8), CURRENT_DATE())
+        )
+      ) AS event_timestamp,
+      CASE 
+          WHEN MOD(version + n, 7) = 1 THEN 'Auckland'
+          WHEN MOD(version + n, 7) = 2 THEN 'Wellington'
+          WHEN MOD(version + n, 7) = 3 THEN 'Christchurch'
+          WHEN MOD(version + n, 7) = 4 THEN 'Queenstown'
+          WHEN MOD(version + n, 7) = 5 THEN 'Dunedin'
+          WHEN MOD(version + n, 7) = 6 THEN 'Hamilton'
+          ELSE 'Tauranga'
+      END AS origin,
+      CASE 
+          WHEN MOD(version + n, 7) = 1 THEN 'Sydney'
+          WHEN MOD(version + n, 7) = 2 THEN 'Los Angeles'
+          WHEN MOD(version + n, 7) = 3 THEN 'Singapore'
+          WHEN MOD(version + n, 7) = 4 THEN 'Tokyo'
+          WHEN MOD(version + n, 7) = 5 THEN 'Rarotonga'
+          WHEN MOD(version + n, 7) = 6 THEN 'Nadi'
+          ELSE 'Honolulu'
+      END AS destination,
+      DATEADD('day', (version * 5 + n * 15), CURRENT_DATE()) AS departure_date,
+      CASE
+          WHEN MOD(version + n, 3) = 0 THEN DATEADD('day', (version * 5 + n * 15 + 7), CURRENT_DATE())
+          WHEN MOD(version + n, 3) = 1 THEN DATEADD('day', (version * 5 + n * 15 + 14), CURRENT_DATE())
+          ELSE NULL
+      END AS return_date,
+      CASE 
+          WHEN MOD(version, 4) = 0 THEN 'Economy'
+          WHEN MOD(version, 4) = 1 THEN 'Premium Economy'
+          WHEN MOD(version, 4) = 2 THEN 'Business Premier'
+          ELSE 'Economy Skycouch'
+      END AS cabin_class,
+      CASE WHEN MOD(n, 2) = 0 THEN TRUE ELSE FALSE END AS is_mobile_app,
+      CASE WHEN MOD(version + n, 5) = 0 THEN FALSE ELSE TRUE END AS results_available,
+      MOD(version + n, 3) + 1 AS passenger_count,
+      CASE WHEN MOD(version + n, 3) = 0 THEN TRUE ELSE FALSE END AS flexible_dates,
+      CASE WHEN MOD(version, 2) = 0 THEN 'Airpoints Dollars + Pay' ELSE 'Cash Fare' END AS fare_preference
+  FROM event_multiplier;
+primaryKey: EVENT_ID
