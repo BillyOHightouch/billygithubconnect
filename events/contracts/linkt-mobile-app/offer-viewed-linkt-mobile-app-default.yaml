@@ -1,0 +1,23 @@
+name: Offer Viewed
+onSchemaViolation: BLOCK_EVENT
+onUndeclaredFields: OMIT_FIELDS
+schema:
+  type: object
+  properties:
+    properties:
+      type: object
+      required:
+        - offer_name
+      properties:
+        offer_id:
+          type: string
+          description: Unique identifier for the offer, used to join with offer catalogue data downstream (e.g. '7eleven_fuel').
+        offer_name:
+          type: string
+          description: Human-readable name of the offer as displayed to the user (e.g. 'Save 6c per litre on fuel').
+        partner_name:
+          type: string
+          description: Display name of the partner providing the offer (e.g. '7-Eleven').
+type: track
+version: default
+includeBuiltInContext: true
