@@ -45,6 +45,12 @@ sources:
     name: Billy Databricks Personal
     type: databricks
 destinations:
+  facebook-custom-audiences-ak:
+    name: Meta Custom Audiences AK
+    type: facebook
+  facebook-custom-audiences-v2:
+    name: Meta Ads
+    type: facebook
   google-cloud-storage:
     name: Google Cloud Storage
     type: gcs
