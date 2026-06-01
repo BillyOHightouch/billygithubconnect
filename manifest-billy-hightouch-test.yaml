@@ -45,6 +45,9 @@ sources:
     name: Billy Databricks Personal
     type: databricks
 destinations:
+  eagle-eye:
+    name: Eagle Eye
+    type: webhookV2
   facebook-custom-audiences-ak:
     name: Meta Custom Audiences AK
     type: facebook
