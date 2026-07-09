@@ -48,6 +48,9 @@ sources:
     name: Billy Databricks Personal
     type: databricks
 destinations:
+  snowflake-personal:
+    name: Snowflake Personal
+    type: snowflake-destination
   google-sheets-service-account:
     name: Google Sheets (Service Account)
     type: googleSheetsSA
@@ -81,9 +84,6 @@ destinations:
     type: marketo
   google-data-manager-0a35a:
     type: google-data-manager
-  snowflake-personal:
-    name: Snowflake Personal
-    type: snowflake-destination
   microsoft-bing-ads:
     name: Microsoft Bing Ads
     type: bingads
