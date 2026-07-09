@@ -45,6 +45,9 @@ sources:
     name: Billy Databricks Personal
     type: databricks
 destinations:
+  google-sheets-service-account:
+    name: Google Sheets (Service Account)
+    type: googleSheetsSA
   eagle-eye:
     name: Eagle Eye
     type: webhookV2
@@ -87,9 +90,6 @@ destinations:
     type: googleCampaignManager
   undefined-c485a-a9096:
     type: gam360
-  google-sheets-service-account:
-    name: Google Sheets (Service Account)
-    type: googleSheetsSA
   undefined-f8d62-85b16:
     type: sfmc
   undefined-629ee-fe31c:
