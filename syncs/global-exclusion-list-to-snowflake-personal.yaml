@@ -1,0 +1,22 @@
+model: global-exclusion-list
+destination: snowflake-personal
+config:
+  mode: all
+  target:
+    table: GLOBAL_EXCLUSION_LIST
+    schema: PUBLIC
+  mappings:
+    - to: ID
+      from: ID
+      type: standard
+      fieldType: text
+      typeOptions:
+        kind: STRING
+        name: STRING
+        required: false
+  configVersion: 3
+  autoCreateTable: true
+  externalIdMapping: {}
+schedule:
+  type: manual
+schedulePaused: false
