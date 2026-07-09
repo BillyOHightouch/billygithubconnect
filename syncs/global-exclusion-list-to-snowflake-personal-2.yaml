@@ -1,0 +1,22 @@
+model: global-exclusion-list
+destination: snowflake-personal
+config:
+  mode: all
+  target:
+    table: AIRWALLEX_GLOBAL_EXCLUSION_LIST
+    schema: PUBLIC
+  mappings:
+    - to: ID
+      from: ID
+      type: standard
+      fieldType: number
+      typeOptions:
+        kind: INTEGER
+        name: INTEGER
+        required: false
+  configVersion: 3
+  autoCreateTable: true
+  externalIdMapping: {}
+schedule:
+  type: manual
+schedulePaused: false
