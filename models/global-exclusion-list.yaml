@@ -1,0 +1,7 @@
+name: Global Exclusion List
+source: google-sheets
+type: custom
+customQuery:
+  name: Bailey Nelson
+  type: sheet
+primaryKey: ID
