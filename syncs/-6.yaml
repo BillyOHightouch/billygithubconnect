@@ -47,9 +47,5 @@ config:
       from: USER_ID
       type: standard
 schedule:
-  type: interval
-  schedule:
-    interval:
-      unit: hour
-      quantity: 1
+  type: manual
 schedulePaused: false
